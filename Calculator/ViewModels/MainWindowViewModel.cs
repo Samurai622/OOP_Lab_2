@@ -26,17 +26,21 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private string _modeButtonText = "Звичайний";
 
     [ObservableProperty] private ObservableCollection<string> _availableCurrencies = new();
-    [ObservableProperty] private string _selectedFrom = "";
-    [ObservableProperty] private string _selectedTo = "";
+    
+    // Зроблено nullable (з ?), щоб можна було перевірити, чи користувач їх обрав
+    [ObservableProperty] private string? _selectedFrom;
+    [ObservableProperty] private string? _selectedTo;
+
+    // Властивість для відкриття/закриття меню
+    [ObservableProperty] private bool _isMenuOpen = false;
 
     private double? _leftOperand = null;
     private string _currentOperator = "";
     private bool _isNewInput = true;
 
-    // МАГІЯ MVVM: Ці методи викликаються АВТОМАТИЧНО, коли юзер міняє валюту в випадаючому списку
-    partial void OnSelectedFromChanged(string value) => RealTimeCurrencyConvert();
-    partial void OnSelectedToChanged(string value) => RealTimeCurrencyConvert();
-    partial void OnDisplayChanged(string value) => RealTimeCurrencyConvert(); // Реагує на введення цифр!
+    partial void OnSelectedFromChanged(string? value) => RealTimeCurrencyConvert();
+    partial void OnSelectedToChanged(string? value) => RealTimeCurrencyConvert();
+    partial void OnDisplayChanged(string value) => RealTimeCurrencyConvert();
 
     private CalculatorState GetState() => new(Display, Equation, _leftOperand, _currentOperator, _isNewInput);
     private void RestoreState(CalculatorState state)
@@ -52,7 +56,6 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     public void Digit(string digit)
     {
-        // 1. БЛОКУВАННЯ: Якщо це валюти, але вони не обрані — забороняємо ввід!
         if (IsCurrencyVisible && (string.IsNullOrEmpty(SelectedFrom) || string.IsNullOrEmpty(SelectedTo)))
         {
             Equation = "Спочатку оберіть валюти!";
@@ -74,7 +77,6 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     public void Dot()
     {
-        // 2. БЛОКУВАННЯ КРАПКИ
         if (IsCurrencyVisible && (string.IsNullOrEmpty(SelectedFrom) || string.IsNullOrEmpty(SelectedTo)))
         {
             Equation = "Спочатку оберіть валюти!";
@@ -113,7 +115,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     public void Calculate()
     {
-        if (IsCurrencyVisible) return; // У валютах кнопка "=" більше нічого не робить, бо все рахується миттєво!
+        if (IsCurrencyVisible) return; 
 
         ExecuteWithHistory(() =>
         {
@@ -143,55 +145,63 @@ public partial class MainWindowViewModel : ObservableObject
         }
     });
 
-    // МИТТЄВА КОНВЕРТАЦІЯ
     private void RealTimeCurrencyConvert()
     {
         if (!IsCurrencyVisible) return;
 
-        // Якщо хоча б одна валюта не обрана — показуємо підказку і виходимо
         if (string.IsNullOrEmpty(SelectedFrom) || string.IsNullOrEmpty(SelectedTo))
         {
             Equation = "Оберіть валюти для конвертації";
             return;
         }
         
-        // Якщо обидві валюти обрані, конвертуємо і показуємо результат
         if (double.TryParse(Display.Replace(',', '.'), CultureInfo.InvariantCulture, out double amount))
         {
             double res = _currencyService.Convert(amount, SelectedFrom, SelectedTo);
-            // Виводимо результат
             Equation = $"= {Math.Round(res, 2).ToString(CultureInfo.InvariantCulture)} {SelectedTo}";
         }
     }
 
+    // --- НОВІ КОМАНДИ ДЛЯ МЕНЮ ---
+
     [RelayCommand]
-    public async Task ToggleModeAsync()
+    public void ToggleMenu() => IsMenuOpen = !IsMenuOpen;
+
+    [RelayCommand]
+    public async Task SetModeAsync(string mode)
     {
-        if (!IsScientificVisible && !IsCurrencyVisible) { IsScientificVisible = true; ModeButtonText = "Інженерний"; }
-        else if (IsScientificVisible)
+        IsMenuOpen = false; // Закриваємо меню після вибору
+        
+        IsScientificVisible = false;
+        IsCurrencyVisible = false;
+        Equation = ""; 
+        Display = "0"; 
+        _isNewInput = true;
+
+        switch (mode)
         {
-            IsScientificVisible = false; 
-            IsCurrencyVisible = true; 
-            ModeButtonText = "Валюти";
-            
-            if (AvailableCurrencies.Count == 0)
-            {
-                Equation = "Завантаження курсів...";
-                await _currencyService.FetchRatesAsync();
-                AvailableCurrencies = new ObservableCollection<string>(_currencyService.GetCurrencies());
-            }
-            
-            // Скидаємо дисплей при вході в режим
-            Display = "0";
-            _isNewInput = true;
-            
-            // Викликаємо метод, який перевірить чи обрані валюти, і виведе "Оберіть валюти..."
-            RealTimeCurrencyConvert(); 
-        }
-        else 
-        { 
-            IsCurrencyVisible = false; ModeButtonText = "Звичайний"; 
-            Equation = ""; Display = "0"; _isNewInput = true;
+            case "Standard":
+                ModeButtonText = "Звичайний";
+                break;
+
+            case "Scientific":
+                IsScientificVisible = true;
+                ModeButtonText = "Інженерний";
+                break;
+
+            case "Currency":
+                IsCurrencyVisible = true;
+                ModeButtonText = "Валюти";
+                
+                if (AvailableCurrencies.Count == 0)
+                {
+                    Equation = "Завантаження курсів...";
+                    await _currencyService.FetchRatesAsync();
+                    AvailableCurrencies = new ObservableCollection<string>(_currencyService.GetCurrencies());
+                }
+                
+                RealTimeCurrencyConvert();
+                break;
         }
     }
 
