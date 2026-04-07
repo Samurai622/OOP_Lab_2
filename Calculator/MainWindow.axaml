@@ -1,9 +1,152 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Calculator.MainWindow"
-        Title="Calculator">
-    Welcome to Avalonia!
+        Title="Retro Pixel Calculator"
+        Width="400" Height="550"
+        MinWidth="350" MinHeight="450"
+        KeyDown="Window_KeyDown"
+        Background="{DynamicResource AppBg}">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="AppBg">#E8E6E1</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnBg">#F2F2F2</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnFg">#111111</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnBorder">#222222</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnPressedBg">#E0E0E0</SolidColorBrush>
+                    <SolidColorBrush x:Key="ActionFg">#E62222</SolidColorBrush>
+                    <SolidColorBrush x:Key="OperatorBg">#EAEAEA</SolidColorBrush>
+                    <SolidColorBrush x:Key="EqualsBg">#8CA674</SolidColorBrush>
+                    <SolidColorBrush x:Key="DisplayBg">#8CA674</SolidColorBrush>
+                    <SolidColorBrush x:Key="DisplayBorder">#222222</SolidColorBrush>
+                    <SolidColorBrush x:Key="EqFg">#4A5D3B</SolidColorBrush>
+                    <SolidColorBrush x:Key="DisplayFg">#111111</SolidColorBrush>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="AppBg">#2A2B2A</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnBg">#3A3B3A</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnFg">#E8E6E1</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnBorder">#111111</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnPressedBg">#222222</SolidColorBrush>
+                    <SolidColorBrush x:Key="ActionFg">#FF6B6B</SolidColorBrush>
+                    <SolidColorBrush x:Key="OperatorBg">#454845</SolidColorBrush>
+                    <SolidColorBrush x:Key="EqualsBg">#5E734D</SolidColorBrush>
+                    <SolidColorBrush x:Key="DisplayBg">#5E734D</SolidColorBrush>
+                    <SolidColorBrush x:Key="DisplayBorder">#111111</SolidColorBrush>
+                    <SolidColorBrush x:Key="EqFg">#2D3825</SolidColorBrush>
+                    <SolidColorBrush x:Key="DisplayFg">#0A0D08</SolidColorBrush>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Window.Styles>
+        <Style Selector="Button">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="FontFamily" Value="Consolas, Courier New, Monospace"/> 
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Background" Value="{DynamicResource BtnBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BtnFg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BtnBorder}"/>
+            <Setter Property="BorderThickness" Value="2,2,4,4"/> 
+            <Setter Property="CornerRadius" Value="2"/> 
+        </Style>
+
+        <Style Selector="Button:pressed">
+            <Setter Property="BorderThickness" Value="2,2,2,2"/>
+            <Setter Property="Margin" Value="6,6,2,2"/>
+            <Setter Property="Background" Value="{DynamicResource BtnPressedBg}"/>
+        </Style>
+
+        <Style Selector="Button.action">
+            <Setter Property="Foreground" Value="{DynamicResource ActionFg}"/>
+        </Style>
+
+        <Style Selector="Button.operator">
+            <Setter Property="Background" Value="{DynamicResource OperatorBg}"/>
+        </Style>
+        
+        <Style Selector="Button.equals">
+            <Setter Property="Background" Value="{DynamicResource EqualsBg}"/>
+        </Style>
+
+        <Style Selector="Button.menu">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Margin" Value="2,0"/>
+        </Style>
+        
+        <Style Selector="Button.menu:pressed">
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Margin" Value="4,2,0,-2"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto, Auto, *" Margin="15">
+        
+        <Grid Grid.Row="0" ColumnDefinitions="*,*,*" Margin="0,0,0,15">
+            <Button Grid.Column="0" Content="Тема" Click="OnToggleThemeClick" Classes="menu"/>
+            <Button x:Name="ModeButton" Grid.Column="1" Content="Режим" Click="OnToggleModeClick" Classes="menu"/>
+            <Button Grid.Column="2" Content="Redo" Click="OnRedoClick" HotKey="Ctrl+Y" Classes="menu"/>
+        </Grid>
+
+        <Border Grid.Row="1" Background="{DynamicResource DisplayBg}" 
+                BorderBrush="{DynamicResource DisplayBorder}" 
+                BorderThickness="4" CornerRadius="4" Padding="15,10" Margin="0,0,0,20">
+            <Grid RowDefinitions="Auto, *">
+                <TextBlock x:Name="EquationTextBlock" Grid.Row="0" Text="" 
+                           TextAlignment="Right" FontSize="18" Foreground="{DynamicResource EqFg}"
+                           FontFamily="Consolas, Courier New, Monospace" MinHeight="20"/>
+
+                <TextBlock x:Name="DisplayTextBlock" Grid.Row="1" Text="0" 
+                           TextAlignment="Right" FontSize="56" FontWeight="Bold"
+                           Foreground="{DynamicResource DisplayFg}" 
+                           FontFamily="Consolas, Courier New, Monospace"
+                           Margin="0,5,0,0"/>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" RowDefinitions="*,*,*,*,*" ColumnDefinitions="*,*,*,*, Auto">
+
+            <Button Grid.Row="0" Grid.Column="0" Content="CE" Click="OnUndoClick" HotKey="Ctrl+Z" Classes="action" FontSize="20"/>
+            <Button Grid.Row="0" Grid.Column="1" Content="C" Click="OnClearClick" HotKey="Escape" Classes="action"/>
+            <Button Grid.Row="0" Grid.Column="2" Content="⌫" Click="OnBackspaceClick" HotKey="Back" Classes="action" FontSize="20"/>
+            <Button Grid.Row="0" Grid.Column="3" Content="÷" Click="OnOperatorClick" HotKey="Oem2" Classes="operator"/>
+
+            <Button Grid.Row="1" Grid.Column="0" Content="7" Click="OnDigitClick" HotKey="D7"/>
+            <Button Grid.Row="1" Grid.Column="1" Content="8" Click="OnDigitClick" HotKey="D8"/>
+            <Button Grid.Row="1" Grid.Column="2" Content="9" Click="OnDigitClick" HotKey="D9"/>
+            <Button Grid.Row="1" Grid.Column="3" Content="×" Click="OnOperatorClick" HotKey="Shift+D8" Classes="operator"/>
+
+            <Button Grid.Row="2" Grid.Column="0" Content="4" Click="OnDigitClick" HotKey="D4"/>
+            <Button Grid.Row="2" Grid.Column="1" Content="5" Click="OnDigitClick" HotKey="D5"/>
+            <Button Grid.Row="2" Grid.Column="2" Content="6" Click="OnDigitClick" HotKey="D6"/>
+            <Button Grid.Row="2" Grid.Column="3" Content="-" Click="OnOperatorClick" HotKey="-" Classes="operator"/>
+
+            <Button Grid.Row="3" Grid.Column="0" Content="1" Click="OnDigitClick" HotKey="D1"/>
+            <Button Grid.Row="3" Grid.Column="1" Content="2" Click="OnDigitClick" HotKey="D2"/>
+            <Button Grid.Row="3" Grid.Column="2" Content="3" Click="OnDigitClick" HotKey="D3"/>
+            <Button Grid.Row="3" Grid.Column="3" Content="+" Click="OnOperatorClick" HotKey="+" Classes="operator"/>
+
+            <Button Grid.Row="4" Grid.Column="0" Content="00" Click="OnDigitClick" FontSize="20"/>
+            <Button Grid.Row="4" Grid.Column="1" Content="0" Click="OnDigitClick" HotKey="D0"/>
+            <Button Grid.Row="4" Grid.Column="2" Content="." Click="OnDotClick" HotKey="."/>
+            <Button Grid.Row="4" Grid.Column="3" Content="=" Click="OnCalculateClick" HotKey="Enter" Classes="equals"/>
+
+            <Grid x:Name="ScientificPanel" Grid.Column="4" Grid.RowSpan="5" RowDefinitions="*,*,*,*,*" Margin="10,0,0,0" IsVisible="False">
+                <Button Grid.Row="0" Content="π" CommandParameter="3.1415926535" Click="OnPiEClick" Classes="operator" FontSize="22"/>
+                <Button Grid.Row="1" Content="e" CommandParameter="2.7182818284" Click="OnPiEClick" Classes="operator" FontSize="22"/>
+                <Button Grid.Row="2" Content="√x" CommandParameter="sqrt" Click="OnScientificClick" Classes="operator" FontSize="18"/>
+                <Button Grid.Row="3" Content="x²" CommandParameter="sqr" Click="OnScientificClick" Classes="operator" FontSize="18"/>
+                <Button Grid.Row="4" Content="ln" CommandParameter="ln" Click="OnScientificClick" Classes="operator" FontSize="18"/>
+            </Grid>
+        </Grid>
+    </Grid>
 </Window>
