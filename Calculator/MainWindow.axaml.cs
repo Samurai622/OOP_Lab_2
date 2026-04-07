@@ -13,7 +13,6 @@ public partial class MainWindow : Window
     private readonly CalculatorEngine _engine = new();
     private readonly HistoryManager _history = new();
 
-    // Виправлено: культурне початкове значення
     private string _display = "0";
     private string _equation = "";
     private double? _leftOperand = null;
@@ -121,7 +120,6 @@ public partial class MainWindow : Window
     {
         ExecuteWithHistory(() =>
         {
-            // Виправлено: культурне очищення
             _display = "0";
             _equation = "";
             _leftOperand = null;
@@ -164,6 +162,12 @@ public partial class MainWindow : Window
             OnOperatorClick(fakeButton, new RoutedEventArgs());
             e.Handled = true;
         }
+        if (e.Key == Avalonia.Input.Key.Multiply)
+        {
+            var fakeButton = new Button { Content = "×" };
+            OnOperatorClick(fakeButton, new RoutedEventArgs());
+            e.Handled = true;
+        }
     }
 
     private void OnCalculateClick(object? sender, RoutedEventArgs e)
@@ -196,7 +200,6 @@ public partial class MainWindow : Window
         }
         catch (DivideByZeroException)
         {
-            // Виправлено: адекватне повідомлення про помилку
             _display = "Ділення на нуль!";
             _leftOperand = null;
         }
