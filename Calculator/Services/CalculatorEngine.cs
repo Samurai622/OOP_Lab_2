@@ -1,29 +1,16 @@
 using System;
-
 namespace Calculator.Services;
 
 public class CalculatorEngine
 {
-    public double CalculateBase(double leftOperand, double rightOperand, string operation)
+    public double CalculateBase(double left, double right, string op) => op switch
     {
-        return operation switch
-        {
-            "+" => leftOperand + rightOperand,
-            "-" => leftOperand - rightOperand,
-            "×" => leftOperand * rightOperand,
-            "÷" => rightOperand == 0 ? throw new DivideByZeroException() : leftOperand / rightOperand,
-            _ => rightOperand
-        };
-    }
-
-    public double CalculateScientific(double value, string function)
+        "+" => left + right, "-" => left - right, "×" => left * right,
+        "÷" => right == 0 ? throw new DivideByZeroException() : left / right,
+        _ => right
+    };
+    public double CalculateScientific(double val, string func) => func switch
     {
-        return function switch
-        {
-            "sqrt" => Math.Sqrt(value),
-            "ln" => Math.Log(value),
-            "sqr" => value * value,
-            _ => value
-        };
-    }
+        "sqrt" => Math.Sqrt(val), "ln" => Math.Log(val), "sqr" => val * val, _ => val
+    };
 }

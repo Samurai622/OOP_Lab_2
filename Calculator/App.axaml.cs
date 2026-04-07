@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Calculator.Views; // ВКАЗУЄМО, ДЕ ТЕПЕР ЛЕЖИТЬ MAINWINDOW
 
 namespace Calculator;
 

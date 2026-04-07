@@ -1,0 +1,139 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Calculator.ViewModels"
+        x:Class="Calculator.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="MVVM Pixel Calculator"
+        Width="400" Height="600"
+        MinWidth="350" MinHeight="500"
+        Background="{DynamicResource AppBg}">
+
+    
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Divide" Command="{Binding OperatorCommand}" CommandParameter="÷"/>
+        <KeyBinding Gesture="Multiply" Command="{Binding OperatorCommand}" CommandParameter="×"/>
+    </Window.KeyBindings>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Default">
+                    <SolidColorBrush x:Key="AppBg">#E8E6E1</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnBg">#F2F2F2</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnFg">#111111</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnBorder">#222222</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnPressedBg">#E0E0E0</SolidColorBrush>
+                    <SolidColorBrush x:Key="ActionFg">#E62222</SolidColorBrush>
+                    <SolidColorBrush x:Key="OperatorBg">#EAEAEA</SolidColorBrush>
+                    <SolidColorBrush x:Key="EqualsBg">#8CA674</SolidColorBrush>
+                    <SolidColorBrush x:Key="DisplayBg">#8CA674</SolidColorBrush>
+                    <SolidColorBrush x:Key="DisplayBorder">#222222</SolidColorBrush>
+                    <SolidColorBrush x:Key="EqFg">#4A5D3B</SolidColorBrush>
+                    <SolidColorBrush x:Key="DisplayFg">#111111</SolidColorBrush>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="AppBg">#2A2B2A</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnBg">#3A3B3A</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnFg">#E8E6E1</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnBorder">#111111</SolidColorBrush>
+                    <SolidColorBrush x:Key="BtnPressedBg">#222222</SolidColorBrush>
+                    <SolidColorBrush x:Key="ActionFg">#FF6B6B</SolidColorBrush>
+                    <SolidColorBrush x:Key="OperatorBg">#454845</SolidColorBrush>
+                    <SolidColorBrush x:Key="EqualsBg">#5E734D</SolidColorBrush>
+                    <SolidColorBrush x:Key="DisplayBg">#5E734D</SolidColorBrush>
+                    <SolidColorBrush x:Key="DisplayBorder">#111111</SolidColorBrush>
+                    <SolidColorBrush x:Key="EqFg">#2D3825</SolidColorBrush>
+                    <SolidColorBrush x:Key="DisplayFg">#0A0D08</SolidColorBrush>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Window.Styles>
+        <Style Selector="Button">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="FontFamily" Value="Consolas, Courier New, Monospace"/> 
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Background" Value="{DynamicResource BtnBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BtnFg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BtnBorder}"/>
+            <Setter Property="BorderThickness" Value="2,2,4,4"/> 
+            <Setter Property="CornerRadius" Value="2"/> 
+        </Style>
+        <Style Selector="Button:pressed">
+            <Setter Property="BorderThickness" Value="2,2,2,2"/>
+            <Setter Property="Margin" Value="6,6,2,2"/>
+            <Setter Property="Background" Value="{DynamicResource BtnPressedBg}"/>
+        </Style>
+        <Style Selector="Button.action"><Setter Property="Foreground" Value="{DynamicResource ActionFg}"/></Style>
+        <Style Selector="Button.operator"><Setter Property="Background" Value="{DynamicResource OperatorBg}"/></Style>
+        <Style Selector="Button.equals"><Setter Property="Background" Value="{DynamicResource EqualsBg}"/></Style>
+        <Style Selector="Button.menu"><Setter Property="FontSize" Value="12"/><Setter Property="BorderThickness" Value="2"/><Setter Property="Margin" Value="2,0"/></Style>
+        <Style Selector="Button.menu:pressed"><Setter Property="BorderThickness" Value="2"/><Setter Property="Margin" Value="4,2,0,-2"/></Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto, Auto, Auto, *" Margin="15">
+        
+        <Grid Grid.Row="0" ColumnDefinitions="*,*,*" Margin="0,0,0,15">
+            <Button Grid.Column="0" Content="Тема" Command="{Binding ToggleThemeCommand}" Classes="menu"/>
+            <!-- Прив'язка тексту кнопки і команди -->
+            <Button Grid.Column="1" Content="{Binding ModeButtonText}" Command="{Binding ToggleModeCommand}" Classes="menu"/>
+            <Button Grid.Column="2" Content="Redo" Command="{Binding RedoCommand}" HotKey="Ctrl+Y" Classes="menu"/>
+        </Grid>
+
+        <Border Grid.Row="1" Background="{DynamicResource DisplayBg}" 
+                BorderBrush="{DynamicResource DisplayBorder}" BorderThickness="4" CornerRadius="4" Padding="15,10" Margin="0,0,0,10">
+            <Grid RowDefinitions="Auto, *">
+                <TextBlock Grid.Row="0" Text="{Binding Equation}" TextAlignment="Right" FontSize="18" Foreground="{DynamicResource EqFg}" FontFamily="Consolas, Courier New, Monospace" MinHeight="20"/>
+                <TextBlock Grid.Row="1" Text="{Binding Display}" TextAlignment="Right" FontSize="56" FontWeight="Bold" Foreground="{DynamicResource DisplayFg}" FontFamily="Consolas, Courier New, Monospace" Margin="0,5,0,0"/>
+            </Grid>
+        </Border>
+
+        <!-- ПАНЕЛЬ ВАЛЮТ -->
+        <Grid Grid.Row="2" ColumnDefinitions="*, Auto, *" Margin="0,0,0,15" IsVisible="{Binding IsCurrencyVisible}">
+            <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableCurrencies}" SelectedItem="{Binding SelectedFrom}"/>
+            <TextBlock Grid.Column="1" Text=" ➔ " VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BtnFg}"/>
+            <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableCurrencies}" SelectedItem="{Binding SelectedTo}"/>
+        </Grid>
+
+        <Grid Grid.Row="3" RowDefinitions="*,*,*,*,*" ColumnDefinitions="*,*,*,*, Auto">
+            <Button Grid.Row="0" Grid.Column="0" Content="CE" Command="{Binding UndoCommand}" HotKey="Ctrl+Z" Classes="action" FontSize="20"/>
+            <Button Grid.Row="0" Grid.Column="1" Content="C" Command="{Binding ClearCommand}" HotKey="Escape" Classes="action"/>
+            <Button Grid.Row="0" Grid.Column="2" Content="⌫" Command="{Binding BackspaceCommand}" HotKey="Back" Classes="action" FontSize="20"/>
+            <Button Grid.Row="0" Grid.Column="3" Content="÷" Command="{Binding OperatorCommand}" CommandParameter="÷" HotKey="Oem2" Classes="operator" IsEnabled="{Binding !IsCurrencyVisible}"/>
+
+            <Button Grid.Row="1" Grid.Column="0" Content="7" Command="{Binding DigitCommand}" CommandParameter="7" HotKey="D7"/>
+            <Button Grid.Row="1" Grid.Column="1" Content="8" Command="{Binding DigitCommand}" CommandParameter="8" HotKey="D8"/>
+            <Button Grid.Row="1" Grid.Column="2" Content="9" Command="{Binding DigitCommand}" CommandParameter="9" HotKey="D9"/>
+            <Button Grid.Row="1" Grid.Column="3" Content="×" Command="{Binding OperatorCommand}" CommandParameter="×" HotKey="Shift+D8" Classes="operator" IsEnabled="{Binding !IsCurrencyVisible}"/>
+
+            <Button Grid.Row="2" Grid.Column="0" Content="4" Command="{Binding DigitCommand}" CommandParameter="4" HotKey="D4"/>
+            <Button Grid.Row="2" Grid.Column="1" Content="5" Command="{Binding DigitCommand}" CommandParameter="5" HotKey="D5"/>
+            <Button Grid.Row="2" Grid.Column="2" Content="6" Command="{Binding DigitCommand}" CommandParameter="6" HotKey="D6"/>
+            <Button Grid.Row="2" Grid.Column="3" Content="-" Command="{Binding OperatorCommand}" CommandParameter="-" HotKey="-" Classes="operator" IsEnabled="{Binding !IsCurrencyVisible}"/>
+
+            <Button Grid.Row="3" Grid.Column="0" Content="1" Command="{Binding DigitCommand}" CommandParameter="1" HotKey="D1"/>
+            <Button Grid.Row="3" Grid.Column="1" Content="2" Command="{Binding DigitCommand}" CommandParameter="2" HotKey="D2"/>
+            <Button Grid.Row="3" Grid.Column="2" Content="3" Command="{Binding DigitCommand}" CommandParameter="3" HotKey="D3"/>
+            <Button Grid.Row="3" Grid.Column="3" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+" HotKey="+" Classes="operator" IsEnabled="{Binding !IsCurrencyVisible}"/>
+
+            <Button Grid.Row="4" Grid.Column="0" Content="00" Command="{Binding DigitCommand}" CommandParameter="00" FontSize="20"/>
+            <Button Grid.Row="4" Grid.Column="1" Content="0" Command="{Binding DigitCommand}" CommandParameter="0" HotKey="D0"/>
+            <Button Grid.Row="4" Grid.Column="2" Content="." Command="{Binding DotCommand}" HotKey="."/>
+            <Button Grid.Row="4" Grid.Column="3" Content="=" Command="{Binding CalculateCommand}" HotKey="Enter" Classes="equals" IsEnabled="{Binding !IsCurrencyVisible}"/>
+
+            <Grid Grid.Column="4" Grid.RowSpan="5" RowDefinitions="*,*,*,*,*" Margin="10,0,0,0" IsVisible="{Binding IsScientificVisible}">
+                <Button Grid.Row="0" Content="π" Command="{Binding DigitCommand}" CommandParameter="3.1415926535" Classes="operator" FontSize="22"/>
+                <Button Grid.Row="1" Content="e" Command="{Binding DigitCommand}" CommandParameter="2.7182818284" Classes="operator" FontSize="22"/>
+                <Button Grid.Row="2" Content="√x" Command="{Binding ScientificCommand}" CommandParameter="sqrt" Classes="operator" FontSize="18"/>
+                <Button Grid.Row="3" Content="x²" Command="{Binding ScientificCommand}" CommandParameter="sqr" Classes="operator" FontSize="18"/>
+                <Button Grid.Row="4" Content="ln" Command="{Binding ScientificCommand}" CommandParameter="ln" Classes="operator" FontSize="18"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

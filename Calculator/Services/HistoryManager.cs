@@ -1,37 +1,14 @@
 using System.Collections.Generic;
-using Calculator;
+using Calculator.Commands;
 
 namespace Calculator.Services;
 
 public class HistoryManager
 {
-    private readonly Stack<IUndoableCommand> _undoStack = new();
-    private readonly Stack<IUndoableCommand> _redoStack = new();
+    private readonly Stack<IUndoableCommand> _undo = new();
+    private readonly Stack<IUndoableCommand> _redo = new();
 
-    public void ExecuteCommand(IUndoableCommand command)
-    {
-        command.Execute();
-        _undoStack.Push(command);
-        _redoStack.Clear(); // Нова дія скидає історію Redo
-    }
-
-    public void Undo()
-    {
-        if (_undoStack.Count > 0)
-        {
-            var cmd = _undoStack.Pop();
-            cmd.Undo();
-            _redoStack.Push(cmd);
-        }
-    }
-
-    public void Redo()
-    {
-        if (_redoStack.Count > 0)
-        {
-            var cmd = _redoStack.Pop();
-            cmd.Execute();
-            _undoStack.Push(cmd);
-        }
-    }
+    public void ExecuteCommand(IUndoableCommand cmd) { cmd.Execute(); _undo.Push(cmd); _redo.Clear(); }
+    public void Undo() { if (_undo.Count > 0) { var cmd = _undo.Pop(); cmd.Undo(); _redo.Push(cmd); } }
+    public void Redo() { if (_redo.Count > 0) { var cmd = _redo.Pop(); cmd.Execute(); _undo.Push(cmd); } }
 }
