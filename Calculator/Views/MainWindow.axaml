@@ -3,15 +3,38 @@
         xmlns:vm="using:Calculator.ViewModels"
         x:Class="Calculator.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Title="MVVM Pixel Calculator"
-        Width="400" Height="650"
-        MinWidth="350" MinHeight="500"
+        Title="Pixel Calculator"
+        Width="420" Height="750"
+        MinWidth="380" MinHeight="600"
         Background="{DynamicResource AppBg}">
-    
+   
     <Window.KeyBindings>
         <KeyBinding Gesture="Divide" Command="{Binding OperatorCommand}" CommandParameter="÷"/>
         <KeyBinding Gesture="Multiply" Command="{Binding OperatorCommand}" CommandParameter="×"/>
+        <KeyBinding Gesture="Subtract" Command="{Binding OperatorCommand}" CommandParameter="-"/>
+        <KeyBinding Gesture="Add" Command="{Binding OperatorCommand}" CommandParameter="+"/>
+        <KeyBinding Gesture="Enter" Command="{Binding CalculateCommand}"/>
+        <KeyBinding Gesture="Back" Command="{Binding BackspaceCommand}"/>
+        <KeyBinding Gesture="D1" Command="{Binding DigitCommand}" CommandParameter="1"/>
+        <KeyBinding Gesture="D2" Command="{Binding DigitCommand}" CommandParameter="2"/>
+        <KeyBinding Gesture="D3" Command="{Binding DigitCommand}" CommandParameter="3"/>
+        <KeyBinding Gesture="D4" Command="{Binding DigitCommand}" CommandParameter="4"/>
+        <KeyBinding Gesture="D5" Command="{Binding DigitCommand}" CommandParameter="5"/>
+        <KeyBinding Gesture="D6" Command="{Binding DigitCommand}" CommandParameter="6"/>
+        <KeyBinding Gesture="D7" Command="{Binding DigitCommand}" CommandParameter="7"/>
+        <KeyBinding Gesture="D8" Command="{Binding DigitCommand}" CommandParameter="8"/>
+        <KeyBinding Gesture="D9" Command="{Binding DigitCommand}" CommandParameter="9"/>
+        <KeyBinding Gesture="D0" Command="{Binding DigitCommand}" CommandParameter="0"/>
+        <KeyBinding Gesture="Decimal" Command="{Binding DotCommand}"/>
+        <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}"/>
+        <KeyBinding Gesture="Ctrl+Y" Command="{Binding RedoCommand}"/>
+        <KeyBinding Gesture="46" Command="{Binding ClearCommand}"/>
+        <KeyBinding Gesture="Shift+D9" Command="{Binding DigitCommand}" CommandParameter="(" />
+        <KeyBinding Gesture="Shift+D0" Command="{Binding DigitCommand}" CommandParameter=")" />
+        <KeyBinding Gesture="Shift+D8" Command="{Binding OperatorCommand}" CommandParameter="×"/>
+        <KeyBinding Gesture="Oem2" Command="{Binding OperatorCommand}" CommandParameter="÷"/>
     </Window.KeyBindings>
+
 
     <Window.Resources>
         <ResourceDictionary>
@@ -48,6 +71,7 @@
         </ResourceDictionary>
     </Window.Resources>
 
+
     <Window.Styles>
         <Style Selector="Button">
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -55,72 +79,89 @@
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="FontSize" Value="28"/>
-            <Setter Property="FontFamily" Value="Consolas, Courier New, Monospace"/> 
+            <Setter Property="FontFamily" Value="Consolas, Courier New, Monospace"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Margin" Value="4"/>
             <Setter Property="Background" Value="{DynamicResource BtnBg}"/>
             <Setter Property="Foreground" Value="{DynamicResource BtnFg}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BtnBorder}"/>
-            <Setter Property="BorderThickness" Value="2,2,4,4"/> 
-            <Setter Property="CornerRadius" Value="2"/> 
+            <Setter Property="BorderThickness" Value="2,2,4,4"/>
+            <Setter Property="CornerRadius" Value="2"/>
         </Style>
         <Style Selector="Button:pressed">
             <Setter Property="BorderThickness" Value="2,2,2,2"/>
             <Setter Property="Margin" Value="6,6,2,2"/>
             <Setter Property="Background" Value="{DynamicResource BtnPressedBg}"/>
         </Style>
+        <Style Selector="Button.active">
+            <Setter Property="Background" Value="{DynamicResource BtnPressedBg}"/>
+            <Setter Property="BorderThickness" Value="2,2,2,2"/>
+            <Setter Property="Margin" Value="6,6,2,2"/>
+        </Style>
+        
         <Style Selector="Button.action"><Setter Property="Foreground" Value="{DynamicResource ActionFg}"/></Style>
         <Style Selector="Button.operator"><Setter Property="Background" Value="{DynamicResource OperatorBg}"/></Style>
         <Style Selector="Button.equals"><Setter Property="Background" Value="{DynamicResource EqualsBg}"/></Style>
-        <Style Selector="Button.menu"><Setter Property="FontSize" Value="14"/><Setter Property="BorderThickness" Value="2"/><Setter Property="Margin" Value="2,2"/></Style>
-        <Style Selector="Button.menu:pressed"><Setter Property="BorderThickness" Value="2"/><Setter Property="Margin" Value="4,4,0,0"/></Style>
+       
+        <Style Selector="Button.menu">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Margin" Value="2,2"/>
+        </Style>
+        <Style Selector="Button.menu:pressed">
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Margin" Value="4,4,0,0"/>
+        </Style>
+
+
+        <Style Selector="Button.math">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Background" Value="{DynamicResource OperatorBg}"/>
+        </Style>
+        <Style Selector="Button.memory">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="BorderThickness" Value="1,1,3,3"/>
+        </Style>
+        <Style Selector="Button.memory:pressed">
+            <Setter Property="BorderThickness" Value="1,1,1,1"/>
+            <Setter Property="Margin" Value="4,4,0,0"/>
+        </Style>
     </Window.Styles>
 
+
     <Grid RowDefinitions="Auto, *">
-        
         <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto, Auto" Margin="15,15,15,5">
-            <Button Grid.Column="0" Content="≡" Command="{Binding ToggleMenuCommand}" 
-                    Classes="menu" Width="45" Height="40" FontSize="20" FontWeight="Normal"/>
-            
-            <TextBlock Grid.Column="1" Text="{Binding ModeButtonText}" 
-                       VerticalAlignment="Center" FontSize="20" FontWeight="Bold" 
-                       Foreground="{DynamicResource BtnFg}" Margin="10,0"/>
-            
+            <Button Grid.Column="0" Content="≡" Command="{Binding ToggleMenuCommand}" Classes="menu" Width="45" Height="40" FontSize="20"/>
+            <TextBlock Grid.Column="1" Text="{Binding ModeButtonText}" VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BtnFg}" Margin="10,0" FontFamily="Consolas, Courier New, Monospace"/>
             <Button Grid.Column="2" Content="Тема" Command="{Binding ToggleThemeCommand}" Classes="menu" Padding="10,0"/>
             <Button Grid.Column="3" Content="Redo" Command="{Binding RedoCommand}" HotKey="Ctrl+Y" Classes="menu" Padding="10,0"/>
         </Grid>
 
-        <SplitView Grid.Row="1" IsPaneOpen="{Binding IsMenuOpen}" 
-                   DisplayMode="Overlay" OpenPaneLength="250" 
-                   PaneBackground="{DynamicResource AppBg}">
-            
+
+        <SplitView Grid.Row="1" IsPaneOpen="{Binding IsMenuOpen}" DisplayMode="Overlay" OpenPaneLength="250" PaneBackground="{DynamicResource AppBg}">
+           
             <SplitView.Pane>
                 <Border BorderBrush="{DynamicResource BtnBorder}" BorderThickness="0,2,2,0" Margin="0,0,0,15">
                     <ScrollViewer Padding="10">
                         <StackPanel Spacing="5">
-                            
-                            <TextBlock Text="КАЛЬКУЛЯТОР" FontWeight="Bold" Foreground="{DynamicResource BtnFg}" Margin="5,10,5,5"/>
+                            <TextBlock Text="КАЛЬКУЛЯТОР" FontWeight="Bold" Foreground="{DynamicResource BtnFg}" Margin="5,10,5,5" FontFamily="Consolas, Courier New, Monospace"/>
                             <Button Content="Звичайний" Command="{Binding SetModeCommand}" CommandParameter="Standard" Classes="menu" HorizontalContentAlignment="Left" Padding="10,5"/>
                             <Button Content="Інженерний" Command="{Binding SetModeCommand}" CommandParameter="Scientific" Classes="menu" HorizontalContentAlignment="Left" Padding="10,5"/>
-                            <Button Content="Програміст" IsEnabled="False" Classes="menu" HorizontalContentAlignment="Left" Padding="10,5"/>
-                            
-                            <TextBlock Text="КОНВЕРТЕР" FontWeight="Bold" Foreground="{DynamicResource BtnFg}" Margin="5,20,5,5"/>
+                           
+                            <TextBlock Text="КОНВЕРТЕР" FontWeight="Bold" Foreground="{DynamicResource BtnFg}" Margin="5,20,5,5" FontFamily="Consolas, Courier New, Monospace"/>
                             <Button Content="Валюти" Command="{Binding SetModeCommand}" CommandParameter="Currency" Classes="menu" HorizontalContentAlignment="Left" Padding="10,5"/>
-                            <Button Content="Об'єм" IsEnabled="False" Classes="menu" HorizontalContentAlignment="Left" Padding="10,5"/>
-                            <Button Content="Довжина" IsEnabled="False" Classes="menu" HorizontalContentAlignment="Left" Padding="10,5"/>
-                            <Button Content="Вага та маса" IsEnabled="False" Classes="menu" HorizontalContentAlignment="Left" Padding="10,5"/>
-                            <Button Content="Температура" IsEnabled="False" Classes="menu" HorizontalContentAlignment="Left" Padding="10,5"/>
-                            
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
             </SplitView.Pane>
 
+
             <SplitView.Content>
                 <Grid RowDefinitions="Auto, Auto, *" Margin="15,5,15,15">
-                    
-                    <Border Grid.Row="0" Background="{DynamicResource DisplayBg}" 
-                            BorderBrush="{DynamicResource DisplayBorder}" BorderThickness="4" 
+                   
+                    <Border Grid.Row="0" Background="{DynamicResource DisplayBg}"
+                            BorderBrush="{DynamicResource DisplayBorder}" BorderThickness="4"
                             CornerRadius="4" Padding="15,10" Margin="0,0,0,10">
                         <Grid RowDefinitions="Auto, *">
                             <TextBlock Grid.Row="0" Text="{Binding Equation}" TextAlignment="Right" FontSize="18" Foreground="{DynamicResource EqFg}" FontFamily="Consolas, Courier New, Monospace" MinHeight="20"/>
@@ -128,49 +169,187 @@
                         </Grid>
                     </Border>
 
+
                     <Grid Grid.Row="1" ColumnDefinitions="*, Auto, *" Margin="0,0,0,15" IsVisible="{Binding IsCurrencyVisible}">
-                        <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableCurrencies}" SelectedItem="{Binding SelectedFrom}"/>
+                        <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableCurrencies}" SelectedItem="{Binding SelectedFrom}" FontFamily="Consolas, Courier New, Monospace"/>
                         <TextBlock Grid.Column="1" Text=" ➔ " VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource BtnFg}"/>
-                        <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableCurrencies}" SelectedItem="{Binding SelectedTo}"/>
+                        <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableCurrencies}" SelectedItem="{Binding SelectedTo}" FontFamily="Consolas, Courier New, Monospace"/>
                     </Grid>
 
-                    <Grid Grid.Row="2" RowDefinitions="*,*,*,*,*" ColumnDefinitions="*,*,*,*, Auto">
-                        <Button Grid.Row="0" Grid.Column="0" Content="CE" Command="{Binding UndoCommand}" HotKey="Ctrl+Z" Classes="action" FontSize="20"/>
-                        <Button Grid.Row="0" Grid.Column="1" Content="C" Command="{Binding ClearCommand}" HotKey="Escape" Classes="action"/>
-                        <Button Grid.Row="0" Grid.Column="2" Content="⌫" Command="{Binding BackspaceCommand}" HotKey="Back" Classes="action" FontSize="20"/>
-                        <Button Grid.Row="0" Grid.Column="3" Content="÷" Command="{Binding OperatorCommand}" CommandParameter="÷" HotKey="Oem2" Classes="operator" IsEnabled="{Binding !IsCurrencyVisible}"/>
 
-                        <Button Grid.Row="1" Grid.Column="0" Content="7" Command="{Binding DigitCommand}" CommandParameter="7" HotKey="D7"/>
-                        <Button Grid.Row="1" Grid.Column="1" Content="8" Command="{Binding DigitCommand}" CommandParameter="8" HotKey="D8"/>
-                        <Button Grid.Row="1" Grid.Column="2" Content="9" Command="{Binding DigitCommand}" CommandParameter="9" HotKey="D9"/>
-                        <Button Grid.Row="1" Grid.Column="3" Content="×" Command="{Binding OperatorCommand}" CommandParameter="×" HotKey="Shift+D8" Classes="operator" IsEnabled="{Binding !IsCurrencyVisible}"/>
+                    <Grid Grid.Row="2">
+                       
+                        <Grid RowDefinitions="*,*,*,*,*" ColumnDefinitions="*,*,*,*" IsVisible="{Binding !IsScientificVisible}">
+                            <Button Grid.Row="0" Grid.Column="0" Content="CE" Command="{Binding UndoCommand}" Classes="action" FontSize="20"/>
+                            <Button Grid.Row="0" Grid.Column="1" Content="C" Command="{Binding ClearCommand}" Classes="action"/>
+                            <Button Grid.Row="0" Grid.Column="2" Content="⌫" Command="{Binding BackspaceCommand}" Classes="action" FontSize="20"/>
+                            <Button Grid.Row="0" Grid.Column="3" Content="÷" Command="{Binding OperatorCommand}" CommandParameter="÷" Classes="operator" IsEnabled="{Binding !IsCurrencyVisible}"/>
 
-                        <Button Grid.Row="2" Grid.Column="0" Content="4" Command="{Binding DigitCommand}" CommandParameter="4" HotKey="D4"/>
-                        <Button Grid.Row="2" Grid.Column="1" Content="5" Command="{Binding DigitCommand}" CommandParameter="5" HotKey="D5"/>
-                        <Button Grid.Row="2" Grid.Column="2" Content="6" Command="{Binding DigitCommand}" CommandParameter="6" HotKey="D6"/>
-                        <Button Grid.Row="2" Grid.Column="3" Content="-" Command="{Binding OperatorCommand}" CommandParameter="-" HotKey="-" Classes="operator" IsEnabled="{Binding !IsCurrencyVisible}"/>
 
-                        <Button Grid.Row="3" Grid.Column="0" Content="1" Command="{Binding DigitCommand}" CommandParameter="1" HotKey="D1"/>
-                        <Button Grid.Row="3" Grid.Column="1" Content="2" Command="{Binding DigitCommand}" CommandParameter="2" HotKey="D2"/>
-                        <Button Grid.Row="3" Grid.Column="2" Content="3" Command="{Binding DigitCommand}" CommandParameter="3" HotKey="D3"/>
-                        <Button Grid.Row="3" Grid.Column="3" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+" HotKey="+" Classes="operator" IsEnabled="{Binding !IsCurrencyVisible}"/>
+                            <Button Grid.Row="1" Grid.Column="0" Content="7" Command="{Binding DigitCommand}" CommandParameter="7"/>
+                            <Button Grid.Row="1" Grid.Column="1" Content="8" Command="{Binding DigitCommand}" CommandParameter="8"/>
+                            <Button Grid.Row="1" Grid.Column="2" Content="9" Command="{Binding DigitCommand}" CommandParameter="9"/>
+                            <Button Grid.Row="1" Grid.Column="3" Content="×" Command="{Binding OperatorCommand}" CommandParameter="×" Classes="operator" IsEnabled="{Binding !IsCurrencyVisible}"/>
 
-                        <Button Grid.Row="4" Grid.Column="0" Content="00" Command="{Binding DigitCommand}" CommandParameter="00" FontSize="20"/>
-                        <Button Grid.Row="4" Grid.Column="1" Content="0" Command="{Binding DigitCommand}" CommandParameter="0" HotKey="D0"/>
-                        <Button Grid.Row="4" Grid.Column="2" Content="." Command="{Binding DotCommand}" HotKey="."/>
-                        <Button Grid.Row="4" Grid.Column="3" Content="=" Command="{Binding CalculateCommand}" HotKey="Enter" Classes="equals" IsEnabled="{Binding !IsCurrencyVisible}"/>
 
-                        <Grid Grid.Column="4" Grid.RowSpan="5" RowDefinitions="*,*,*,*,*" Margin="10,0,0,0" IsVisible="{Binding IsScientificVisible}">
-                            <Button Grid.Row="0" Content="π" Command="{Binding DigitCommand}" CommandParameter="3.1415926535" Classes="operator" FontSize="22"/>
-                            <Button Grid.Row="1" Content="e" Command="{Binding DigitCommand}" CommandParameter="2.7182818284" Classes="operator" FontSize="22"/>
-                            <Button Grid.Row="2" Content="√x" Command="{Binding ScientificCommand}" CommandParameter="sqrt" Classes="operator" FontSize="18"/>
-                            <Button Grid.Row="3" Content="x²" Command="{Binding ScientificCommand}" CommandParameter="sqr" Classes="operator" FontSize="18"/>
-                            <Button Grid.Row="4" Content="ln" Command="{Binding ScientificCommand}" CommandParameter="ln" Classes="operator" FontSize="18"/>
+                            <Button Grid.Row="2" Grid.Column="0" Content="4" Command="{Binding DigitCommand}" CommandParameter="4"/>
+                            <Button Grid.Row="2" Grid.Column="1" Content="5" Command="{Binding DigitCommand}" CommandParameter="5"/>
+                            <Button Grid.Row="2" Grid.Column="2" Content="6" Command="{Binding DigitCommand}" CommandParameter="6"/>
+                            <Button Grid.Row="2" Grid.Column="3" Content="-" Command="{Binding OperatorCommand}" CommandParameter="-" Classes="operator" IsEnabled="{Binding !IsCurrencyVisible}"/>
+
+
+                            <Button Grid.Row="3" Grid.Column="0" Content="1" Command="{Binding DigitCommand}" CommandParameter="1"/>
+                            <Button Grid.Row="3" Grid.Column="1" Content="2" Command="{Binding DigitCommand}" CommandParameter="2"/>
+                            <Button Grid.Row="3" Grid.Column="2" Content="3" Command="{Binding DigitCommand}" CommandParameter="3"/>
+                            <Button Grid.Row="3" Grid.Column="3" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+" Classes="operator" IsEnabled="{Binding !IsCurrencyVisible}"/>
+
+
+                            <Button Grid.Row="4" Grid.Column="0" Content="±" Command="{Binding ScientificCommand}" CommandParameter="negate" FontSize="20"/>
+                            <Button Grid.Row="4" Grid.Column="1" Content="0" Command="{Binding DigitCommand}" CommandParameter="0"/>
+                            <Button Grid.Row="4" Grid.Column="2" Content="." Command="{Binding DotCommand}"/>
+                            <Button Grid.Row="4" Grid.Column="3" Content="=" Command="{Binding CalculateCommand}" Classes="equals" IsEnabled="{Binding !IsCurrencyVisible}"/>
                         </Grid>
+
+
+                        <Grid RowDefinitions="Auto,Auto, *,*,*,*,*,*,*" ColumnDefinitions="*,*,*,*,*" IsVisible="{Binding IsScientificVisible}">
+                           
+                            <Grid Grid.Row="0" Grid.ColumnSpan="5" ColumnDefinitions="Auto,Auto,Auto" Margin="0,0,0,5">
+                                <Button Grid.Column="0" Content="DEG" Classes="menu" Foreground="{DynamicResource ActionFg}" BorderThickness="0" Background="Transparent"/>
+                                <Button Grid.Column="1" Content="HYP" Classes="menu" Foreground="{DynamicResource EqFg}" BorderThickness="0" Background="Transparent"/>
+                                <Button Grid.Column="2" Content="F-E" Classes="menu" Foreground="{DynamicResource EqFg}" BorderThickness="0" Background="Transparent"/>
+                            </Grid>
+
+
+                            <Grid Grid.Row="1" Grid.ColumnSpan="5" ColumnDefinitions="*,*,*,*,*,*" Margin="0,0,0,5">
+                                <Button Grid.Column="0" Content="MC" Classes="memory" Foreground="{DynamicResource EqFg}"/>
+                                <Button Grid.Column="1" Content="MR" Classes="memory" Foreground="{DynamicResource EqFg}"/>
+                                <Button Grid.Column="2" Content="M+" Classes="memory"/>
+                                <Button Grid.Column="3" Content="M-" Classes="memory"/>
+                                <Button Grid.Column="4" Content="MS" Classes="memory"/>
+                                <Button Grid.Column="5" Content="M▾" Classes="memory"/>
+                            </Grid>
+
+
+                            <Button Grid.Row="2" Grid.Column="0" Content="x²" Command="{Binding ScientificCommand}" CommandParameter="sqr" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                            <Button Grid.Row="2" Grid.Column="1" Content="x^y" Command="{Binding OperatorCommand}" CommandParameter="^" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                            <Button Grid.Row="2" Grid.Column="2" Content="sin" Command="{Binding ScientificCommand}" CommandParameter="sin" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                            <Button Grid.Row="2" Grid.Column="3" Content="cos" Command="{Binding ScientificCommand}" CommandParameter="cos" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                            <Button Grid.Row="2" Grid.Column="4" Content="tan" Command="{Binding ScientificCommand}" CommandParameter="tan" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+
+
+                            <Button Grid.Row="2" Grid.Column="0" Command="{Binding ScientificCommand}" CommandParameter="cube" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="x³" TextAlignment="Center"/>
+                                    <TextBlock Text="↙" FontSize="11" Foreground="{DynamicResource EqFg}" TextAlignment="Center" Margin="0,-4,0,0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Row="2" Grid.Column="1" Command="{Binding OperatorCommand}" CommandParameter="yroot" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="y√x" TextAlignment="Center"/>
+                                    <TextBlock Text="↙" FontSize="11" Foreground="{DynamicResource EqFg}" TextAlignment="Center" Margin="0,-4,0,0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Row="2" Grid.Column="2" Command="{Binding ScientificCommand}" CommandParameter="asin" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="sin⁻¹" TextAlignment="Center"/>
+                                    <TextBlock Text="↙" FontSize="11" Foreground="{DynamicResource EqFg}" TextAlignment="Center" Margin="0,-4,0,0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Row="2" Grid.Column="3" Command="{Binding ScientificCommand}" CommandParameter="acos" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="cos⁻¹" TextAlignment="Center"/>
+                                    <TextBlock Text="↙" FontSize="11" Foreground="{DynamicResource EqFg}" TextAlignment="Center" Margin="0,-4,0,0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Row="2" Grid.Column="4" Command="{Binding ScientificCommand}" CommandParameter="atan" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="tan⁻¹" TextAlignment="Center"/>
+                                    <TextBlock Text="↙" FontSize="11" Foreground="{DynamicResource EqFg}" TextAlignment="Center" Margin="0,-4,0,0"/>
+                                </StackPanel>
+                            </Button>
+
+
+                            <Button Grid.Row="3" Grid.Column="0" Content="√" Command="{Binding ScientificCommand}" CommandParameter="sqrt" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                            <Button Grid.Row="3" Grid.Column="1" Content="10^x" Command="{Binding ScientificCommand}" CommandParameter="pow10" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                            <Button Grid.Row="3" Grid.Column="2" Content="log" Command="{Binding ScientificCommand}" CommandParameter="log" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                            <Button Grid.Row="3" Grid.Column="3" Content="Exp" Command="{Binding ScientificCommand}" CommandParameter="exp" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                            <Button Grid.Row="3" Grid.Column="4" Content="Mod" Command="{Binding OperatorCommand}" CommandParameter="mod" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+
+
+                            <Button Grid.Row="3" Grid.Column="0" Command="{Binding ScientificCommand}" CommandParameter="cbrt" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="∛" TextAlignment="Center"/>
+                                    <TextBlock Text="↙" FontSize="11" Foreground="{DynamicResource EqFg}" TextAlignment="Center" Margin="0,-4,0,0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Row="3" Grid.Column="1" Command="{Binding ScientificCommand}" CommandParameter="pow2" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="2^x" TextAlignment="Center"/>
+                                    <TextBlock Text="↙" FontSize="11" Foreground="{DynamicResource EqFg}" TextAlignment="Center" Margin="0,-4,0,0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Row="3" Grid.Column="2" Command="{Binding OperatorCommand}" CommandParameter="logy" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="logy" TextAlignment="Center"/>
+                                    <TextBlock Text="↙" FontSize="11" Foreground="{DynamicResource EqFg}" TextAlignment="Center" Margin="0,-4,0,0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Row="3" Grid.Column="3" Command="{Binding ScientificCommand}" CommandParameter="exp" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="e^x" TextAlignment="Center"/>
+                                    <TextBlock Text="↙" FontSize="11" Foreground="{DynamicResource EqFg}" TextAlignment="Center" Margin="0,-4,0,0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Row="3" Grid.Column="4" Command="{Binding OperatorCommand}" CommandParameter="mod" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}">
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Mod" TextAlignment="Center"/>
+                                    <TextBlock Text="↙" FontSize="11" Foreground="{DynamicResource EqFg}" TextAlignment="Center" Margin="0,-4,0,0"/>
+                                </StackPanel>
+                            </Button>
+
+
+                            <Button Grid.Row="4" Grid.Column="0" Content="↑" Command="{Binding ToggleSecondaryMathCommand}" 
+                                    Classes="math" Classes.active="{Binding IsSecondaryMathVisible}"/>
+                                    
+                            <Button Grid.Row="4" Grid.Column="1" Content="CE" Command="{Binding UndoCommand}" Classes="action" FontSize="18"/>
+                            <Button Grid.Row="4" Grid.Column="2" Content="C" Command="{Binding ClearCommand}" Classes="action"/>
+                            <Button Grid.Row="4" Grid.Column="3" Content="⌫" Command="{Binding BackspaceCommand}" Classes="action" FontSize="18"/>
+                            <Button Grid.Row="4" Grid.Column="4" Content="÷" Command="{Binding OperatorCommand}" CommandParameter="÷" Classes="operator"/>
+
+
+                            <Button Grid.Row="5" Grid.Column="0" Content="π" Command="{Binding DigitCommand}" CommandParameter="3.14159265" Classes="math" FontSize="20"/>
+                            <Button Grid.Row="5" Grid.Column="1" Content="7" Command="{Binding DigitCommand}" CommandParameter="7"/>
+                            <Button Grid.Row="5" Grid.Column="2" Content="8" Command="{Binding DigitCommand}" CommandParameter="8"/>
+                            <Button Grid.Row="5" Grid.Column="3" Content="9" Command="{Binding DigitCommand}" CommandParameter="9"/>
+                            <Button Grid.Row="5" Grid.Column="4" Content="×" Command="{Binding OperatorCommand}" CommandParameter="×" Classes="operator"/>
+
+
+                            <Button Grid.Row="6" Grid.Column="0" Content="n!" Command="{Binding ScientificCommand}" CommandParameter="fact" Classes="math"/>
+                            <Button Grid.Row="6" Grid.Column="1" Content="4" Command="{Binding DigitCommand}" CommandParameter="4"/>
+                            <Button Grid.Row="6" Grid.Column="2" Content="5" Command="{Binding DigitCommand}" CommandParameter="5"/>
+                            <Button Grid.Row="6" Grid.Column="3" Content="6" Command="{Binding DigitCommand}" CommandParameter="6"/>
+                            <Button Grid.Row="6" Grid.Column="4" Content="-" Command="{Binding OperatorCommand}" CommandParameter="-" Classes="operator"/>
+
+
+                            <Button Grid.Row="7" Grid.Column="0" Content="±" Command="{Binding ScientificCommand}" CommandParameter="negate" Classes="math"/>
+                            <Button Grid.Row="7" Grid.Column="1" Content="1" Command="{Binding DigitCommand}" CommandParameter="1"/>
+                            <Button Grid.Row="7" Grid.Column="2" Content="2" Command="{Binding DigitCommand}" CommandParameter="2"/>
+                            <Button Grid.Row="7" Grid.Column="3" Content="3" Command="{Binding DigitCommand}" CommandParameter="3"/>
+                            <Button Grid.Row="7" Grid.Column="4" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+" Classes="operator"/>
+
+
+                            <Button Grid.Row="8" Grid.Column="0" Content="(" Command="{Binding DigitCommand}" CommandParameter="(" Classes="math" Foreground="{DynamicResource EqFg}"/>
+                            <Button Grid.Row="8" Grid.Column="1" Content=")" Command="{Binding DigitCommand}" CommandParameter=")" Classes="math" Foreground="{DynamicResource EqFg}"/>
+                            <Button Grid.Row="8" Grid.Column="2" Content="0" Command="{Binding DigitCommand}" CommandParameter="0"/>
+                            <Button Grid.Row="8" Grid.Column="3" Content="." Command="{Binding DotCommand}"/>
+                            <Button Grid.Row="8" Grid.Column="4" Content="=" Command="{Binding CalculateCommand}" Classes="equals"/>
+                        </Grid>
+
+
                     </Grid>
                 </Grid>
             </SplitView.Content>
-            
         </SplitView>
     </Grid>
 </Window>
+
