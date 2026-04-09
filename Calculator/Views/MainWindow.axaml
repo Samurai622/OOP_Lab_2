@@ -230,18 +230,18 @@
                         <Grid RowDefinitions="Auto, Auto, *,*,*,*,*,*" ColumnDefinitions="*,*,*,*,*,*" IsVisible="{Binding IsProgrammerVisible}">
                             
                             <!-- Системи числення -->
-                            <Grid Grid.Row="0" Grid.ColumnSpan="6" ColumnDefinitions="60,*" RowDefinitions="*,*,*,*" Margin="0,0,0,5">
-                                <Button Grid.Row="0" Grid.Column="0" Content="HEX" Command="{Binding SetBaseCommand}" CommandParameter="16" Classes="menu mode_toggle" Classes.active="{Binding IsHexActive}" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource BtnFg}"/>
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding HexDisplay}" VerticalAlignment="Center" Margin="5,0" FontFamily="Consolas" Foreground="{DynamicResource BtnFg}"/>
+                            <Grid Grid.Row="0" Grid.ColumnSpan="6" ColumnDefinitions="70,*" RowDefinitions="*,*,*,*" Margin="0,0,0,5">
+                                <Button Grid.Row="0" Grid.Column="0" Content="HEX" Command="{Binding SetBaseCommand}" CommandParameter="16" Classes="menu mode_toggle" Classes.active="{Binding IsHexActive}" Foreground="{DynamicResource BtnFg}" Padding="0"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding HexDisplay}" VerticalAlignment="Center" Margin="10,0,5,0" FontFamily="Consolas" Foreground="{DynamicResource BtnFg}"/>
 
-                                <Button Grid.Row="1" Grid.Column="0" Content="DEC" Command="{Binding SetBaseCommand}" CommandParameter="10" Classes="menu mode_toggle" Classes.active="{Binding IsDecActive}" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource BtnFg}"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DecDisplay}" VerticalAlignment="Center" Margin="5,0" FontFamily="Consolas" Foreground="{DynamicResource BtnFg}"/>
+                                <Button Grid.Row="1" Grid.Column="0" Content="DEC" Command="{Binding SetBaseCommand}" CommandParameter="10" Classes="menu mode_toggle" Classes.active="{Binding IsDecActive}" Foreground="{DynamicResource BtnFg}" Padding="0"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DecDisplay}" VerticalAlignment="Center" Margin="10,0,5,0" FontFamily="Consolas" Foreground="{DynamicResource BtnFg}"/>
 
-                                <Button Grid.Row="2" Grid.Column="0" Content="OCT" Command="{Binding SetBaseCommand}" CommandParameter="8" Classes="menu mode_toggle" Classes.active="{Binding IsOctActive}" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource BtnFg}"/>
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding OctDisplay}" VerticalAlignment="Center" Margin="5,0" FontFamily="Consolas" Foreground="{DynamicResource BtnFg}"/>
+                                <Button Grid.Row="2" Grid.Column="0" Content="OCT" Command="{Binding SetBaseCommand}" CommandParameter="8" Classes="menu mode_toggle" Classes.active="{Binding IsOctActive}" Foreground="{DynamicResource BtnFg}" Padding="0"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding OctDisplay}" VerticalAlignment="Center" Margin="10,0,5,0" FontFamily="Consolas" Foreground="{DynamicResource BtnFg}"/>
 
-                                <Button Grid.Row="3" Grid.Column="0" Content="BIN" Command="{Binding SetBaseCommand}" CommandParameter="2" Classes="menu mode_toggle" Classes.active="{Binding IsBinActive}" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource BtnFg}"/>
-                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding BinDisplay}" VerticalAlignment="Center" Margin="5,0" FontFamily="Consolas" Foreground="{DynamicResource BtnFg}"/>
+                                <Button Grid.Row="3" Grid.Column="0" Content="BIN" Command="{Binding SetBaseCommand}" CommandParameter="2" Classes="menu mode_toggle" Classes.active="{Binding IsBinActive}" Foreground="{DynamicResource BtnFg}" Padding="0"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding BinDisplay}" VerticalAlignment="Center" Margin="10,0,5,0" FontFamily="Consolas" Foreground="{DynamicResource BtnFg}"/>
                             </Grid>
 
                             <!-- Бітові операції -->
