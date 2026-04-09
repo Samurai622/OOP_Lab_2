@@ -318,8 +318,8 @@ public partial class MainWindowViewModel : ObservableObject
                 case "pow2": res = Math.Pow(2, val); break; 
                 
                 // Тригонометрія з підтримкою HYP та DEG/RAD/GRAD
-                case "sin": res = IsHyperbolic ? Math.Sinh(val) : Math.Sin(val * angleFactor); break;
-                case "cos": res = IsHyperbolic ? Math.Cosh(val) : Math.Cos(val * angleFactor); break;
+                case "sin": res = IsHyperbolic ? Math.Sinh(val)/2 : Math.Sin(val * angleFactor); break;
+                case "cos": res = IsHyperbolic ? Math.Cosh(val)/2 : Math.Cos(val * angleFactor); break;
                 case "tan": res = IsHyperbolic ? Math.Tanh(val) : Math.Tan(val * angleFactor); break;
                 case "asin": res = IsHyperbolic ? Math.Asinh(val) : Math.Asin(val) / angleFactor; break; 
                 case "acos": res = IsHyperbolic ? Math.Acosh(val) : Math.Acos(val) / angleFactor; break; 
