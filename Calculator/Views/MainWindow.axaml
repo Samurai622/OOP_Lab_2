@@ -338,8 +338,8 @@
                             <Button Grid.Row="7" Grid.Column="4" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+" Classes="operator"/>
 
 
-                            <Button Grid.Row="8" Grid.Column="0" Content="(" Command="{Binding DigitCommand}" CommandParameter="(" Classes="math" Foreground="{DynamicResource EqFg}"/>
-                            <Button Grid.Row="8" Grid.Column="1" Content=")" Command="{Binding DigitCommand}" CommandParameter=")" Classes="math" Foreground="{DynamicResource EqFg}"/>
+                            <Button Grid.Row="8" Grid.Column="1" Content=")" Command="{Binding DigitCommand}" CommandParameter=")" Classes="math"/>
+                            <Button Grid.Row="8" Grid.Column="0" Content="(" Command="{Binding DigitCommand}" CommandParameter="(" Classes="math"/>
                             <Button Grid.Row="8" Grid.Column="2" Content="0" Command="{Binding DigitCommand}" CommandParameter="0"/>
                             <Button Grid.Row="8" Grid.Column="3" Content="." Command="{Binding DotCommand}"/>
                             <Button Grid.Row="8" Grid.Column="4" Content="=" Command="{Binding CalculateCommand}" Classes="equals"/>
