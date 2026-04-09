@@ -30,10 +30,14 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private string _displayRight = "";    
     [ObservableProperty] private int _caretPosition = 1;
     [ObservableProperty] private double _cursorOpacity = 1.0;
+    
+    // Видимість режимів
+    [ObservableProperty] private bool _isMainDisplayVisible = true;
     [ObservableProperty] private bool _isStandardVisible = true;
     [ObservableProperty] private bool _isScientificVisible = false;
     [ObservableProperty] private bool _isCurrencyVisible = false;
     [ObservableProperty] private bool _isProgrammerVisible = false;
+    [ObservableProperty] private bool _isDateCalcVisible = false;
     
     [ObservableProperty] private string _modeButtonText = "Звичайний";
 
@@ -73,9 +77,118 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private bool _isDecEnabled = true;
     [ObservableProperty] private bool _isBinEnabled = true;
 
+    // --- Властивості Обчислення Дат ---
+    [ObservableProperty] private int _dateCalcModeIndex = 0;
+    [ObservableProperty] private bool _isDateDifferenceMode = true;
+
+    [ObservableProperty] private DateTime? _fromDate = DateTime.Now;
+    [ObservableProperty] private DateTime? _toDate = DateTime.Now;
+    [ObservableProperty] private string _dateDiffResult = "Та сама дата";
+    [ObservableProperty] private string _dateDiffTotalDays = "0 днів";
+
+    [ObservableProperty] private DateTime? _startDate = DateTime.Now;
+    [ObservableProperty] private bool _isAddModeDate = true;
+    [ObservableProperty] private decimal? _addSubYears = 0;
+    [ObservableProperty] private decimal? _addSubMonths = 0;
+    [ObservableProperty] private decimal? _addSubDays = 0;
+    [ObservableProperty] private string _addSubResultDate = "";
+
+    // --- Модальний календар ---
+    [ObservableProperty] private bool _isCalendarOverlayVisible;
+    [ObservableProperty] private DateTime? _calendarOverlayDate = DateTime.Now;
+    [ObservableProperty] private DateTime _calendarOverlayDisplayDate = DateTime.Now;
+    private string _calendarTarget = "";
+
+    // --- Текстові поля для ручного введення ---
+    private string _fromDateText = "";
+    public string FromDateText
+    {
+        get => _fromDateText;
+        set
+        {
+            _fromDateText = value;
+            if (TryParseDate(value, out var d)) { FromDate = d; HasFromDateError = false; }
+            else if (value?.Length == 10) { HasFromDateError = true; FromDateValidation = "Невірний формат дати"; OnPropertyChanged(nameof(FromDateValidation)); }
+            OnPropertyChanged();
+        }
+    }
+
+    private string _toDateText = "";
+    public string ToDateText
+    {
+        get => _toDateText;
+        set
+        {
+            _toDateText = value;
+            if (TryParseDate(value, out var d)) { ToDate = d; HasToDateError = false; }
+            else if (value?.Length == 10) { HasToDateError = true; ToDateValidation = "Невірний формат дати"; OnPropertyChanged(nameof(ToDateValidation)); }
+            OnPropertyChanged();
+        }
+    }
+
+    private string _startDateText = "";
+    public string StartDateText
+    {
+        get => _startDateText;
+        set
+        {
+            _startDateText = value;
+            if (TryParseDate(value, out var d)) { StartDate = d; HasStartDateError = false; }
+            else if (value?.Length == 10) { HasStartDateError = true; StartDateValidation = "Невірний формат дати"; OnPropertyChanged(nameof(StartDateValidation)); }
+            OnPropertyChanged();
+        }
+    }
+
+    // --- Блокування секцій ---
+    public bool IsFromDateSet => FromDate.HasValue;
+    public bool IsStartDateSet => StartDate.HasValue;
+    public bool IsCalculatorKeyboardActive => !IsDateCalcVisible;
+    public bool IsNotDateCalc => !IsDateCalcVisible;
+    public double ToDateSectionOpacity => IsFromDateSet ? 1.0 : 0.45;
+    public double AddSubSectionOpacity => IsStartDateSet ? 1.0 : 0.45;
+
+    // --- Валідація ---
+    private bool _hasFromDateError;
+    public bool HasFromDateError
+    {
+        get => _hasFromDateError;
+        set { _hasFromDateError = value; OnPropertyChanged(); }
+    }
+    public string FromDateValidation { get; set; } = "";
+
+    private bool _hasToDateError;
+    public bool HasToDateError
+    {
+        get => _hasToDateError;
+        set { _hasToDateError = value; OnPropertyChanged(); }
+    }
+    public string ToDateValidation { get; set; } = "";
+
+    private bool _hasStartDateError;
+    public bool HasStartDateError
+    {
+        get => _hasStartDateError;
+        set { _hasStartDateError = value; OnPropertyChanged(); }
+    }
+    public string StartDateValidation { get; set; } = "";
+
+    // --- Хелпер парсингу ---
+    private static bool TryParseDate(string? s, out DateTime? result)
+    {
+        result = null;
+        if (s?.Length != 10) return false;
+        if (DateTime.TryParseExact(s, "dd.MM.yyyy",
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None, out var d))
+        {
+            result = d;
+            return true;
+        }
+        return false;
+    }
+
     public MainWindowViewModel()
     {
-        // Таймер для блимання тонкого курсору
         var cursorTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
         cursorTimer.Tick += (s, e) =>
         {
@@ -83,21 +196,188 @@ public partial class MainWindowViewModel : ObservableObject
         };
         cursorTimer.Start();
         UpdateSplitDisplay();
+        UpdateDateDifference();
+        UpdateAddSubDate();
+    }
+
+    // --- Команди Модального Календаря ---
+    [RelayCommand]
+    public void OpenCalendar(string target)
+    {
+        _calendarTarget = target;
+        DateTime initialDate = DateTime.Now;
+        
+        switch (target)
+        {
+            case "From":
+                if (FromDate.HasValue) initialDate = FromDate.Value;
+                break;
+            case "To":
+                if (ToDate.HasValue) initialDate = ToDate.Value;
+                break;
+            case "Start":
+                if (StartDate.HasValue) initialDate = StartDate.Value;
+                break;
+        }
+        
+        CalendarOverlayDate = initialDate;
+        CalendarOverlayDisplayDate = initialDate;
+        IsCalendarOverlayVisible = true;
+    }
+
+    [RelayCommand]
+    public void ConfirmCalendar()
+    {
+        if (CalendarOverlayDate.HasValue)
+        {
+            switch (_calendarTarget)
+            {
+                case "From": FromDate = CalendarOverlayDate; break;
+                case "To": ToDate = CalendarOverlayDate; break;
+                case "Start": StartDate = CalendarOverlayDate; break;
+            }
+        }
+        IsCalendarOverlayVisible = false;
+    }
+
+    [RelayCommand]
+    public void CancelCalendar()
+    {
+        IsCalendarOverlayVisible = false;
+    }
+
+    // --- Тригери Зміни Дат ---
+    partial void OnDateCalcModeIndexChanged(int value)
+    {
+        IsDateDifferenceMode = value == 0;
+        if (IsDateDifferenceMode) UpdateDateDifference();
+        else UpdateAddSubDate();
+    }
+    partial void OnFromDateChanged(DateTime? value)
+    {
+        _fromDateText = value?.ToString("dd.MM.yyyy") ?? "";
+        OnPropertyChanged(nameof(FromDateText));
+        OnPropertyChanged(nameof(IsFromDateSet));
+        OnPropertyChanged(nameof(ToDateSectionOpacity));
+        UpdateDateDifference();
+    }
+    partial void OnToDateChanged(DateTime? value)
+    {
+        _toDateText = value?.ToString("dd.MM.yyyy") ?? "";
+        OnPropertyChanged(nameof(ToDateText));
+        UpdateDateDifference();
+    }
+    partial void OnStartDateChanged(DateTime? value)
+    {
+        _startDateText = value?.ToString("dd.MM.yyyy") ?? "";
+        OnPropertyChanged(nameof(StartDateText));
+        OnPropertyChanged(nameof(IsStartDateSet));
+        OnPropertyChanged(nameof(AddSubSectionOpacity));
+        UpdateAddSubDate();
+    }
+    partial void OnIsAddModeDateChanged(bool value) => UpdateAddSubDate();
+    partial void OnAddSubYearsChanged(decimal? value) => UpdateAddSubDate();
+    partial void OnAddSubMonthsChanged(decimal? value) => UpdateAddSubDate();
+    partial void OnAddSubDaysChanged(decimal? value) => UpdateAddSubDate();
+
+    private string FormatDeclension(int num, string f1, string f2, string f5)
+    {
+        int n = Math.Abs(num) % 100;
+        int n1 = n % 10;
+        if (n >= 11 && n <= 19) return $"{num} {f5}";
+        if (n1 == 1) return $"{num} {f1}";
+        if (n1 >= 2 && n1 <= 4) return $"{num} {f2}";
+        return $"{num} {f5}";
+    }
+
+    private void UpdateDateDifference()
+    {
+        if (!IsDateCalcVisible || !IsDateDifferenceMode) return;
+        if (!FromDate.HasValue || !ToDate.HasValue) 
+        {
+            DateDiffResult = "-";
+            DateDiffTotalDays = "";
+            return;
+        }
+
+        var diff = ToDate.Value.Date - FromDate.Value.Date;
+        int totalDays = Math.Abs((int)diff.TotalDays);
+        
+        DateTime minDate = FromDate.Value.Date < ToDate.Value.Date ? FromDate.Value.Date : ToDate.Value.Date;
+        DateTime maxDate = FromDate.Value.Date < ToDate.Value.Date ? ToDate.Value.Date : FromDate.Value.Date;
+        
+        int years = maxDate.Year - minDate.Year;
+        int months = maxDate.Month - minDate.Month;
+        int days = maxDate.Day - minDate.Day;
+
+        if (days < 0) {
+            months--;
+            days += DateTime.DaysInMonth(minDate.AddMonths(months).Year, minDate.AddMonths(months).Month);
+        }
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+
+        int weeks = days / 7;
+        int remainingDays = days % 7;
+
+        List<string> parts = new();
+        if (years > 0) parts.Add(FormatDeclension(years, "рік", "роки", "років"));
+        if (months > 0) parts.Add(FormatDeclension(months, "місяць", "місяці", "місяців"));
+        if (weeks > 0) parts.Add(FormatDeclension(weeks, "тиждень", "тижні", "тижнів"));
+        if (remainingDays > 0) parts.Add(FormatDeclension(remainingDays, "день", "дні", "днів"));
+
+        if (totalDays == 0) 
+        {
+            DateDiffResult = "Та сама дата";
+            DateDiffTotalDays = "0 дн.";
+        }
+        else 
+        {
+            DateDiffResult = string.Join(", ", parts);
+            DateDiffTotalDays = FormatDeclension(totalDays, "день", "дні", "днів");
+        }
+    }
+
+    private void UpdateAddSubDate()
+    {
+        if (!IsDateCalcVisible || IsDateDifferenceMode || !StartDate.HasValue) return;
+        
+        try {
+            int mult = IsAddModeDate ? 1 : -1;
+            DateTime res = StartDate.Value.Date
+                .AddYears((int)(AddSubYears ?? 0) * mult)
+                .AddMonths((int)(AddSubMonths ?? 0) * mult)
+                .AddDays((int)(AddSubDays ?? 0) * mult);
+                
+            AddSubResultDate = res.ToString("D", new CultureInfo("uk-UA"));
+        } catch {
+            AddSubResultDate = "Помилка дати (вихід за межі)";
+        }
+    }
+
+    private void UpdateCommandStates()
+    {
+        DigitCommand.NotifyCanExecuteChanged();
+        BackspaceCommand.NotifyCanExecuteChanged();
+        ClearCommand.NotifyCanExecuteChanged();
+        OperatorCommand.NotifyCanExecuteChanged();
+        CalculateCommand.NotifyCanExecuteChanged();
+        MoveCaretCommand.NotifyCanExecuteChanged();
     }
 
     partial void OnSelectedFromChanged(string? value) => RealTimeCurrencyConvert();
     partial void OnSelectedToChanged(string? value) => RealTimeCurrencyConvert();
-    
     partial void OnDisplayChanged(string value) 
     {
         RealTimeCurrencyConvert();
         UpdateProgrammerDisplays();
         UpdateSplitDisplay();
     }
-
     partial void OnCaretPositionChanged(int value)
     {
-        CursorOpacity = 1.0; // Скидаємо таймер блимання при зміні позиції
+        CursorOpacity = 1.0; 
         UpdateSplitDisplay();
     }
 
@@ -123,7 +403,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand] public void ToggleSecondaryMath() => IsSecondaryMathVisible = !IsSecondaryMathVisible;
     [RelayCommand] public void ToggleProgrammerSecondary() => IsProgrammerSecondaryVisible = !IsProgrammerSecondaryVisible;
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
     public void MoveCaret(string direction)
     {
         if (int.TryParse(direction, out int dir))
@@ -247,7 +527,7 @@ public partial class MainWindowViewModel : ObservableObject
         return double.TryParse(token, CultureInfo.InvariantCulture, out result);
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
     public void Digit(string digit)
     {
         if (IsCurrencyVisible && (string.IsNullOrEmpty(SelectedFrom) || string.IsNullOrEmpty(SelectedTo)))
@@ -315,7 +595,6 @@ public partial class MainWindowViewModel : ObservableObject
         if (IsProgrammerVisible) return;
         ExecuteWithHistory(() =>
         {
-            // Якщо це новий ввід, одразу ставимо "0."
             if (_isNewInput) 
             { 
                 Display = "0."; 
@@ -327,30 +606,22 @@ public partial class MainWindowViewModel : ObservableObject
             if (CaretPosition < 0) CaretPosition = 0;
             if (CaretPosition > Display.Length) CaretPosition = Display.Length;
 
-            // Розділяємо рядок на те, що ДО курсора, і ПІСЛЯ нього
             string leftPart = Display.Substring(0, CaretPosition);
             string rightPart = Display.Substring(CaretPosition);
-
-            // Знаходимо поточний токен (число або оператор) перед курсором
             var tokens = Tokenize(leftPart);
             string currentNumber = tokens.Count > 0 ? tokens.Last() : "";
 
-            // Якщо в поточному токені ще немає крапки
             if (!currentNumber.Contains(".")) 
             {
-                // Перевіряємо, чи потрібен нуль. 
-                // Нуль потрібен, якщо рядок порожній або останній символ ПЕРЕД курсором - НЕ цифра (наприклад, +, -, ×, ÷)
                 bool needsZero = leftPart.Length == 0 || !char.IsDigit(leftPart.Last());
 
                 if (needsZero)
                 {
-                    // Вставляємо "0."
                     Display = leftPart + "0." + rightPart;
                     CaretPosition += 2;
                 }
                 else
                 {
-                    // Вставляємо просто "."
                     Display = leftPart + "." + rightPart;
                     CaretPosition += 1;
                 }
@@ -358,7 +629,7 @@ public partial class MainWindowViewModel : ObservableObject
         });
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
     public void Backspace() => ExecuteWithHistory(() =>
     {
         if (_isNewInput || Display == "Error" || CaretPosition <= 0) return;
@@ -391,7 +662,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
     });
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
     public void Clear() => ExecuteWithHistory(() =>
     {
         Display = IsProgrammerVisible ? "" : "0"; 
@@ -400,7 +671,7 @@ public partial class MainWindowViewModel : ObservableObject
         _lastOperator = ""; _lastRightOperand = null;
     });
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
     public void Operator(string op)
     {
         ExecuteWithHistory(() =>
@@ -425,24 +696,15 @@ public partial class MainWindowViewModel : ObservableObject
 
             string? prevOp = allOps.FirstOrDefault(o => leftPart.EndsWith(o));
             
-            if (prevOp != null)
-            {
-                leftPart = leftPart.Substring(0, leftPart.Length - prevOp.Length) + op;
-            }
-            else
-            {
-                leftPart += op;
-            }
+            if (prevOp != null) leftPart = leftPart.Substring(0, leftPart.Length - prevOp.Length) + op;
+            else leftPart += op;
 
-            // ФІКС: Спочатку оновлюємо Display, щоб його довжина збільшилася!
             Display = leftPart + rightPart; 
-            
-            // Тільки ПОТІМ задаємо нову позицію курсора
             CaretPosition = leftPart.Length;
         });
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
     public void Calculate()
     {
         if (IsCurrencyVisible) return;
@@ -516,7 +778,6 @@ public partial class MainWindowViewModel : ObservableObject
         {
             double val = EvaluateTokens(Tokenize(Display));
             double res = 0;
-
             double angleFactor = AngleModeText == "DEG" ? Math.PI / 180.0 : (AngleModeText == "GRAD" ? Math.PI / 200.0 : 1.0);
 
             switch (func)
@@ -612,8 +873,7 @@ public partial class MainWindowViewModel : ObservableObject
         {
             if (Array.IndexOf(ops, tokens[i]) >= 0)
             {
-                if (TryParseNumber(tokens[i - 1], out double left) &&
-                    TryParseNumber(tokens[i + 1], out double right))
+                if (TryParseNumber(tokens[i - 1], out double left) && TryParseNumber(tokens[i + 1], out double right))
                 {
                     double res = 0;
                     switch (tokens[i])
@@ -682,7 +942,9 @@ public partial class MainWindowViewModel : ObservableObject
     public async Task SetModeAsync(string mode)
     {
         IsMenuOpen = false;
-        IsStandardVisible = false; IsScientificVisible = false; IsCurrencyVisible = false; IsProgrammerVisible = false;
+        IsStandardVisible = false; IsScientificVisible = false; IsCurrencyVisible = false; IsProgrammerVisible = false; IsDateCalcVisible = false;
+        IsMainDisplayVisible = mode != "DateCalc";
+        
         Equation = ""; 
         Display = mode == "Programmer" ? "" : "0"; 
         _isNewInput = true;
@@ -710,7 +972,16 @@ public partial class MainWindowViewModel : ObservableObject
                     AvailableCurrencies = new ObservableCollection<string>(_currencyService.GetCurrencies());
                 }
                 RealTimeCurrencyConvert(); break;
+            case "DateCalc":
+                IsDateCalcVisible = true;
+                OnPropertyChanged(nameof(IsCalculatorKeyboardActive));
+                ModeButtonText = "Обчислення дат";
+                UpdateDateDifference();
+                break;
         }
+
+        OnPropertyChanged(nameof(IsNotDateCalc));
+        UpdateCommandStates();
     }
 
     [RelayCommand] public void ToggleTheme()
