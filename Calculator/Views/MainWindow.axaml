@@ -213,21 +213,33 @@
 
                         <Grid RowDefinitions="Auto,Auto, *,*,*,*,*,*,*" ColumnDefinitions="*,*,*,*,*" IsVisible="{Binding IsScientificVisible}">
                            
-                            <Grid Grid.Row="0" Grid.ColumnSpan="5" ColumnDefinitions="Auto,Auto,Auto" Margin="0,0,0,5">
-                                <Button Grid.Column="0" Content="DEG" Classes="menu" Foreground="{DynamicResource ActionFg}" BorderThickness="0" Background="Transparent"/>
-                                <Button Grid.Column="1" Content="HYP" Classes="menu" Foreground="{DynamicResource EqFg}" BorderThickness="0" Background="Transparent"/>
-                                <Button Grid.Column="2" Content="F-E" Classes="menu" Foreground="{DynamicResource EqFg}" BorderThickness="0" Background="Transparent"/>
-                            </Grid>
+                        <Grid Grid.Row="0" Grid.ColumnSpan="5" ColumnDefinitions="Auto,Auto,Auto" Margin="0,0,0,5">
+                            <Button Grid.Column="0" Content="{Binding AngleModeText}" Command="{Binding ToggleAngleModeCommand}" Classes="menu" Foreground="{DynamicResource ActionFg}" BorderThickness="0" Background="Transparent"/>
+                            <Button Grid.Column="1" Content="HYP" Command="{Binding ToggleHypCommand}" Classes="menu" Classes.active="{Binding IsHyperbolic}" Foreground="{DynamicResource EqFg}" BorderThickness="0" Background="Transparent"/>
+                            <Button Grid.Column="2" Content="F-E" Command="{Binding ToggleFECommand}" Classes="menu" Classes.active="{Binding IsExponentialMode}" Foreground="{DynamicResource EqFg}" BorderThickness="0" Background="Transparent"/>
+                        </Grid>
 
+                        <Grid Grid.Row="1" Grid.ColumnSpan="5" ColumnDefinitions="*,*,*,*,*,*" Margin="0,0,0,5">
+                            <Button Grid.Column="0" Content="MC" Command="{Binding MemoryCommand}" CommandParameter="MC" IsEnabled="{Binding HasMemory}" Classes="memory" Foreground="{DynamicResource EqFg}"/>
+                            <Button Grid.Column="1" Content="MR" Command="{Binding MemoryCommand}" CommandParameter="MR" IsEnabled="{Binding HasMemory}" Classes="memory" Foreground="{DynamicResource EqFg}"/>
+                            <Button Grid.Column="2" Content="M+" Command="{Binding MemoryCommand}" CommandParameter="M+" Classes="memory"/>
+                            <Button Grid.Column="3" Content="M-" Command="{Binding MemoryCommand}" CommandParameter="M-" Classes="memory"/>
+                            <Button Grid.Column="4" Content="MS" Command="{Binding MemoryCommand}" CommandParameter="MS" Classes="memory"/>
+                            
+                            <Button Grid.Column="5" Content="M▾" Classes="memory" IsEnabled="{Binding HasMemory}">
+                                <Button.Flyout>
+                                    <Flyout Placement="BottomEdgeAlignedRight">
+                                        <StackPanel Spacing="5" Width="150">
+                                            <TextBlock Text="Збережено:" FontWeight="Bold" Foreground="{DynamicResource DisplayFg}" />
+                                            <TextBlock Text="{Binding MemoryValue}" FontSize="20" Foreground="{DynamicResource DisplayFg}" />
+                                            <Button Content="Очистити (MC)" Command="{Binding MemoryCommand}" CommandParameter="MC" HorizontalAlignment="Stretch" Margin="0,10,0,0" />
+                                        </StackPanel>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                        </Grid>
 
-                            <Grid Grid.Row="1" Grid.ColumnSpan="5" ColumnDefinitions="*,*,*,*,*,*" Margin="0,0,0,5">
-                                <Button Grid.Column="0" Content="MC" Classes="memory" Foreground="{DynamicResource EqFg}"/>
-                                <Button Grid.Column="1" Content="MR" Classes="memory" Foreground="{DynamicResource EqFg}"/>
-                                <Button Grid.Column="2" Content="M+" Classes="memory"/>
-                                <Button Grid.Column="3" Content="M-" Classes="memory"/>
-                                <Button Grid.Column="4" Content="MS" Classes="memory"/>
-                                <Button Grid.Column="5" Content="M▾" Classes="memory"/>
-                            </Grid>
+                        <Button Grid.Row="2" Grid.Column="0" Content="x²" Command="{Binding ScientificCommand}" CommandParameter="sqr" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
 
 
                             <Button Grid.Row="2" Grid.Column="0" Content="x²" Command="{Binding ScientificCommand}" CommandParameter="sqr" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
