@@ -5,10 +5,11 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Avalonia;
 using Avalonia.Styling;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Calculator.Models;
 using Calculator.Commands;
 using Calculator.Services;
@@ -24,9 +25,15 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private string _display = "0";
     [ObservableProperty] private string _equation = "";
     
+    // Властивості для відображення розбитого тексту та курсора
+    [ObservableProperty] private string _displayLeft = "0";
+    [ObservableProperty] private string _displayRight = "";    
+    [ObservableProperty] private int _caretPosition = 1;
+    [ObservableProperty] private double _cursorOpacity = 1.0;
     [ObservableProperty] private bool _isStandardVisible = true;
     [ObservableProperty] private bool _isScientificVisible = false;
     [ObservableProperty] private bool _isCurrencyVisible = false;
+    [ObservableProperty] private bool _isProgrammerVisible = false;
     
     [ObservableProperty] private string _modeButtonText = "Звичайний";
 
@@ -38,124 +45,207 @@ public partial class MainWindowViewModel : ObservableObject
     private bool _isNewInput = true;
     
     [ObservableProperty] private bool _isSecondaryMathVisible = false;
+    [ObservableProperty] private bool _isProgrammerSecondaryVisible = false;
     
     private double? _lastRightOperand = null;
     private string _lastOperator = "";
 
-    // ==========================================
-    // НОВІ ВЛАСТИВОСТІ ДЛЯ ВЕРХНЬОГО ТА НИЖНЬОГО РЯДУ
-    // ==========================================
-    
-    // Пам'ять
     [ObservableProperty] private bool _hasMemory = false;
     [ObservableProperty] private double _memoryValue = 0;
 
-    // Режими
-    [ObservableProperty] private string _angleModeText = "DEG"; // DEG, RAD, GRAD
+    [ObservableProperty] private string _angleModeText = "DEG"; 
     [ObservableProperty] private bool _isHyperbolic = false;
     [ObservableProperty] private bool _isExponentialMode = false;
 
+    [ObservableProperty] private int _currentBase = 10;
+    
+    [ObservableProperty] private string _hexDisplay = "0";
+    [ObservableProperty] private string _decDisplay = "0";
+    [ObservableProperty] private string _octDisplay = "0";
+    [ObservableProperty] private string _binDisplay = "0";
+
+    [ObservableProperty] private bool _isHexActive = false;
+    [ObservableProperty] private bool _isDecActive = true;
+    [ObservableProperty] private bool _isOctActive = false;
+    [ObservableProperty] private bool _isBinActive = false;
+
+    [ObservableProperty] private bool _isOctEnabled = true;
+    [ObservableProperty] private bool _isDecEnabled = true;
+    [ObservableProperty] private bool _isBinEnabled = true;
+
+    public MainWindowViewModel()
+    {
+        // Таймер для блимання тонкого курсору
+        var cursorTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+        cursorTimer.Tick += (s, e) =>
+        {
+            CursorOpacity = CursorOpacity == 1.0 ? 0.0 : 1.0;
+        };
+        cursorTimer.Start();
+        UpdateSplitDisplay();
+    }
 
     partial void OnSelectedFromChanged(string? value) => RealTimeCurrencyConvert();
     partial void OnSelectedToChanged(string? value) => RealTimeCurrencyConvert();
-    partial void OnDisplayChanged(string value) => RealTimeCurrencyConvert();
+    
+    partial void OnDisplayChanged(string value) 
+    {
+        RealTimeCurrencyConvert();
+        UpdateProgrammerDisplays();
+        UpdateSplitDisplay();
+    }
+
+    partial void OnCaretPositionChanged(int value)
+    {
+        CursorOpacity = 1.0; // Скидаємо таймер блимання при зміні позиції
+        UpdateSplitDisplay();
+    }
+
+    private void UpdateSplitDisplay()
+    {
+        if (CaretPosition < 0) CaretPosition = 0;
+        if (CaretPosition > Display.Length) CaretPosition = Display.Length;
+
+        DisplayLeft = Display.Substring(0, CaretPosition);
+        DisplayRight = Display.Substring(CaretPosition);
+    }
 
     private CalculatorState GetState() => new(Display, Equation, null, "", _isNewInput);
     private void RestoreState(CalculatorState state)
     {
         Display = state.Display; Equation = state.Equation; _isNewInput = state.IsNewInput;
+        CaretPosition = Display.Length;
     }
     private void ExecuteWithHistory(Action action) => _history.ExecuteCommand(new StateCommand(action, GetState, RestoreState));
 
     [RelayCommand] public void Undo() => _history.Undo();
     [RelayCommand] public void Redo() => _history.Redo();
     [RelayCommand] public void ToggleSecondaryMath() => IsSecondaryMathVisible = !IsSecondaryMathVisible;
+    [RelayCommand] public void ToggleProgrammerSecondary() => IsProgrammerSecondaryVisible = !IsProgrammerSecondaryVisible;
 
-    // ==========================================
-    // НОВІ КОМАНДИ ДЛЯ НАЛАШТУВАНЬ (DEG, HYP, F-E)
-    // ==========================================
-    
     [RelayCommand]
-    public void ToggleAngleMode()
+    public void MoveCaret(string direction)
+    {
+        if (int.TryParse(direction, out int dir))
+        {
+            int newPos = CaretPosition + dir;
+            if (newPos >= 0 && newPos <= Display.Length)
+                CaretPosition = newPos;
+        }
+    }
+
+    [RelayCommand] public void ToggleAngleMode()
     {
         if (AngleModeText == "DEG") AngleModeText = "RAD";
         else if (AngleModeText == "RAD") AngleModeText = "GRAD";
         else AngleModeText = "DEG";
     }
-
-    [RelayCommand]
-    public void ToggleHyp() => IsHyperbolic = !IsHyperbolic;
-
-    [RelayCommand]
-    public void ToggleFE()
+    [RelayCommand] public void ToggleHyp() => IsHyperbolic = !IsHyperbolic;
+    [RelayCommand] public void ToggleFE()
     {
         IsExponentialMode = !IsExponentialMode;
-        // Оновлюємо відображення поточного числа
-        if (double.TryParse(Display, CultureInfo.InvariantCulture, out double val))
+        if (double.TryParse(Display, CultureInfo.InvariantCulture, out double val)) Display = FormatResult(val);
+    }
+
+    [RelayCommand]
+    public void SetBase(string baseStr)
+    {
+        if (!int.TryParse(baseStr, out int newBase)) return;
+        try
         {
-            Display = FormatResult(val);
+            long val = (long)EvaluateTokens(Tokenize(Display));
+            CurrentBase = newBase;
+            UpdateBasesState();
+            Display = Convert.ToString(val, CurrentBase).ToUpper();
+            _isNewInput = true;
+            CaretPosition = Display.Length;
+        }
+        catch
+        {
+            CurrentBase = newBase;
+            UpdateBasesState();
         }
     }
 
-    // ==========================================
-    // НОВА КОМАНДА ДЛЯ ПАМ'ЯТІ (MC, MR, MS, M+, M-)
-    // ==========================================
+    private void UpdateBasesState()
+    {
+        IsHexActive = CurrentBase == 16;
+        IsDecActive = CurrentBase == 10;
+        IsOctActive = CurrentBase == 8;
+        IsBinActive = CurrentBase == 2;
+
+        IsOctEnabled = CurrentBase >= 8; 
+        IsDecEnabled = CurrentBase >= 10;
+        IsBinEnabled = true;
+    }
+
+    private void UpdateProgrammerDisplays()
+    {
+        if (!IsProgrammerVisible || Display == "Error") return;
+        
+        if (string.IsNullOrWhiteSpace(Display))
+        {
+            HexDisplay = "0"; DecDisplay = "0"; OctDisplay = "0"; BinDisplay = "0";
+            return;
+        }
+        
+        try
+        {
+            long val = (long)EvaluateTokens(Tokenize(Display));
+            HexDisplay = Convert.ToString(val, 16).ToUpper();
+            DecDisplay = Convert.ToString(val, 10);
+            OctDisplay = Convert.ToString(val, 8);
+            
+            string bin = Convert.ToString(val, 2);
+            BinDisplay = bin.PadLeft(Math.Max(1, bin.Length), '0');
+        }
+        catch { }
+    }
+
     [RelayCommand]
     public void Memory(string action)
     {
         if (Display == "Error") return;
-        
-        // Отримуємо поточне число з екрану
         double currentVal = 0;
         try { currentVal = EvaluateTokens(Tokenize(Display)); } catch { return; }
 
         switch (action)
         {
-            case "MC": // Memory Clear
-                MemoryValue = 0; 
-                HasMemory = false; 
-                break;
-            case "MR": // Memory Recall
-                if (HasMemory) 
-                { 
-                    Display = FormatResult(MemoryValue); 
-                    _isNewInput = true; 
-                }
-                break;
-            case "MS": // Memory Store
-                MemoryValue = currentVal; 
-                HasMemory = true; 
-                _isNewInput = true;
-                break;
-            case "M+": // Memory Add
-                MemoryValue += currentVal; 
-                HasMemory = true; 
-                _isNewInput = true;
-                break;
-            case "M-": // Memory Subtract
-                MemoryValue -= currentVal; 
-                HasMemory = true; 
-                _isNewInput = true;
-                break;
+            case "MC": MemoryValue = 0; HasMemory = false; break;
+            case "MR": if (HasMemory) { Display = FormatResult(MemoryValue); _isNewInput = true; CaretPosition = Display.Length; } break;
+            case "MS": MemoryValue = currentVal; HasMemory = true; _isNewInput = true; break;
+            case "M+": MemoryValue += currentVal; HasMemory = true; _isNewInput = true; break;
+            case "M-": MemoryValue -= currentVal; HasMemory = true; _isNewInput = true; break;
         }
     }
 
-    // Допоміжний метод для форматування чисел (враховує кнопку F-E)
     private string FormatResult(double result)
     {
         if (double.IsNaN(result) || double.IsInfinity(result)) return "Error";
         
-        if (IsExponentialMode)
-        {
-            return result.ToString("E5", CultureInfo.InvariantCulture); // Науковий формат: 1.50000E+06
-        }
+        if (IsProgrammerVisible) return Convert.ToString((long)result, CurrentBase).ToUpper();
+        if (IsExponentialMode) return result.ToString("E5", CultureInfo.InvariantCulture);
         
-        return Math.Round(result, 10).ToString(CultureInfo.InvariantCulture); // Звичайний формат
+        return Math.Round(result, 10).ToString(CultureInfo.InvariantCulture); 
     }
 
-    // ==========================================
-    // СТАНДАРТНІ КОМАНДИ
-    // ==========================================
+    private bool TryParseNumber(string token, out double result)
+    {
+        if (IsProgrammerVisible)
+        {
+            try {
+                bool isNeg = token.StartsWith("-");
+                string clean = isNeg ? token.Substring(1) : token;
+                long val = Convert.ToInt64(clean, CurrentBase);
+                if (isNeg) val = -val;
+                result = val;
+                return true;
+            } catch {
+                result = 0; return false;
+            }
+        }
+        return double.TryParse(token, CultureInfo.InvariantCulture, out result);
+    }
 
     [RelayCommand]
     public void Digit(string digit)
@@ -165,19 +255,56 @@ public partial class MainWindowViewModel : ObservableObject
             Equation = "Спочатку оберіть валюти!"; return;
         }
 
+        if (IsProgrammerVisible)
+        {
+            if (CurrentBase == 2 && !Regex.IsMatch(digit, "^[01()]$")) return;
+            if (CurrentBase == 8 && !Regex.IsMatch(digit, "^[0-7()]$")) return;
+            if (CurrentBase == 10 && !Regex.IsMatch(digit, "^[0-9()]$")) return;
+            if (CurrentBase == 16 && !Regex.IsMatch(digit, "^[0-9A-F()]$")) return;
+        }
+        else if (Regex.IsMatch(digit, "^[A-F]$")) return;
+
         ExecuteWithHistory(() =>
         {
-            if (Display == "Error") Display = "0";
+            if (Display == "Error") { Display = IsProgrammerVisible ? "" : "0"; CaretPosition = Display.Length; }
+
+            if (CaretPosition < 0) CaretPosition = 0;
+            if (CaretPosition > Display.Length) CaretPosition = Display.Length;
 
             if (_isNewInput)
             {
-                Display = (digit == "00") ? "0" : digit;
+                Display = digit == "00" ? "0" : digit;
+                CaretPosition = Display.Length;
                 _isNewInput = false;
             }
             else
             {
-                if (Display == "0" && digit != "(" && digit != ")") Display = digit;
-                else Display += digit;
+                if (IsProgrammerVisible)
+                {
+                    Display = Display.Insert(CaretPosition, digit);
+                    CaretPosition += digit.Length;
+                }
+                else
+                {
+                    if (Display == "0" && digit != "(" && digit != ")")
+                    {
+                        if (digit == "0" || digit == "00")
+                        {
+                            Display = "0";
+                            CaretPosition = 1;
+                        }
+                        else
+                        {
+                            Display = digit;
+                            CaretPosition = digit.Length;
+                        }
+                    }
+                    else
+                    {
+                        Display = Display.Insert(CaretPosition, digit);
+                        CaretPosition += digit.Length;
+                    }
+                }
             }
         });
     }
@@ -185,55 +312,133 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     public void Dot()
     {
-        if (IsCurrencyVisible && (string.IsNullOrEmpty(SelectedFrom) || string.IsNullOrEmpty(SelectedTo))) return;
+        if (IsProgrammerVisible) return;
         ExecuteWithHistory(() =>
         {
-            if (_isNewInput) { Display = "0."; _isNewInput = false; return; }
+            // Якщо це новий ввід, одразу ставимо "0."
+            if (_isNewInput) 
+            { 
+                Display = "0."; 
+                CaretPosition = 2; 
+                _isNewInput = false; 
+                return; 
+            }
+            
+            if (CaretPosition < 0) CaretPosition = 0;
+            if (CaretPosition > Display.Length) CaretPosition = Display.Length;
 
-            var tokens = Tokenize(Display);
-            string lastToken = tokens.Count > 0 ? tokens.Last() : "";
-            if (!lastToken.Contains(".")) Display += ".";
+            // Розділяємо рядок на те, що ДО курсора, і ПІСЛЯ нього
+            string leftPart = Display.Substring(0, CaretPosition);
+            string rightPart = Display.Substring(CaretPosition);
+
+            // Знаходимо поточний токен (число або оператор) перед курсором
+            var tokens = Tokenize(leftPart);
+            string currentNumber = tokens.Count > 0 ? tokens.Last() : "";
+
+            // Якщо в поточному токені ще немає крапки
+            if (!currentNumber.Contains(".")) 
+            {
+                // Перевіряємо, чи потрібен нуль. 
+                // Нуль потрібен, якщо рядок порожній або останній символ ПЕРЕД курсором - НЕ цифра (наприклад, +, -, ×, ÷)
+                bool needsZero = leftPart.Length == 0 || !char.IsDigit(leftPart.Last());
+
+                if (needsZero)
+                {
+                    // Вставляємо "0."
+                    Display = leftPart + "0." + rightPart;
+                    CaretPosition += 2;
+                }
+                else
+                {
+                    // Вставляємо просто "."
+                    Display = leftPart + "." + rightPart;
+                    CaretPosition += 1;
+                }
+            }
         });
     }
 
     [RelayCommand]
     public void Backspace() => ExecuteWithHistory(() =>
     {
-        if (_isNewInput || Display == "Error") return;
+        if (_isNewInput || Display == "Error" || CaretPosition <= 0) return;
 
-        var textOps = new[] { "mod", "yroot", "logy" };
-        string? endOp = textOps.FirstOrDefault(o => Display.EndsWith(o));
+        var textOps = new[] { "mod", "yroot", "logy", "<<", ">>", "AND", "OR", "XOR", "RoL", "RoR" };
         
-        if (endOp != null) Display = Display.Substring(0, Display.Length - endOp.Length);
-        else Display = Display.Length > 1 ? Display[..^1] : "0";
+        string leftPart = Display.Substring(0, CaretPosition);
+        string rightPart = Display.Substring(CaretPosition);
 
-        if (Display == "0" || Display == "") { Display = "0"; _isNewInput = true; }
+        string? opToDelete = textOps.FirstOrDefault(o => leftPart.EndsWith(o));
+
+        if (opToDelete != null)
+        {
+            leftPart = leftPart.Substring(0, leftPart.Length - opToDelete.Length);
+            CaretPosition -= opToDelete.Length;
+        }
+        else
+        {
+            leftPart = leftPart.Substring(0, leftPart.Length - 1);
+            CaretPosition -= 1;
+        }
+
+        Display = leftPart + rightPart;
+
+        if (Display == "" || Display == "-") 
+        { 
+            Display = IsProgrammerVisible ? "" : "0"; 
+            _isNewInput = true; 
+            CaretPosition = Display.Length;
+        }
     });
 
     [RelayCommand]
     public void Clear() => ExecuteWithHistory(() =>
     {
-        Display = "0"; Equation = ""; _isNewInput = true;
+        Display = IsProgrammerVisible ? "" : "0"; 
+        Equation = ""; _isNewInput = true;
+        CaretPosition = Display.Length;
         _lastOperator = ""; _lastRightOperand = null;
     });
 
     [RelayCommand]
     public void Operator(string op)
     {
-        if (IsCurrencyVisible) return;
         ExecuteWithHistory(() =>
         {
             if (Display == "Error") return;
+
+            if (Display == "") 
+            {
+                Display = "0";
+                CaretPosition = 1;
+            }
+
             _isNewInput = false;
 
-            string stringOp = op;
-            var allOps = new[] { "+", "-", "×", "÷", "^", "mod", "yroot", "logy" };
-            
-            string? endOp = allOps.FirstOrDefault(o => Display.EndsWith(o));
+            if (CaretPosition < 0) CaretPosition = 0;
+            if (CaretPosition > Display.Length) CaretPosition = Display.Length;
 
-            if (Display.EndsWith("(")) Display += stringOp;
-            else if (endOp != null) Display = Display.Substring(0, Display.Length - endOp.Length) + stringOp;
-            else Display += stringOp;
+            string leftPart = Display.Substring(0, CaretPosition);
+            string rightPart = Display.Substring(CaretPosition);
+
+            var allOps = new[] { "+", "-", "×", "÷", "^", "mod", "yroot", "logy", "<<", ">>", "AND", "OR", "XOR", "RoL", "RoR" };
+
+            string? prevOp = allOps.FirstOrDefault(o => leftPart.EndsWith(o));
+            
+            if (prevOp != null)
+            {
+                leftPart = leftPart.Substring(0, leftPart.Length - prevOp.Length) + op;
+            }
+            else
+            {
+                leftPart += op;
+            }
+
+            // ФІКС: Спочатку оновлюємо Display, щоб його довжина збільшилася!
+            Display = leftPart + rightPart; 
+            
+            // Тільки ПОТІМ задаємо нову позицію курсора
+            CaretPosition = leftPart.Length;
         });
     }
 
@@ -248,11 +453,16 @@ public partial class MainWindowViewModel : ObservableObject
             if (_isNewInput && !string.IsNullOrEmpty(_lastOperator) && _lastRightOperand != null)
             {
                 string opForDisplay = _lastOperator.Replace("*", "×").Replace("/", "÷");
-                Equation = $"{Display}{opForDisplay}{_lastRightOperand.Value.ToString(CultureInfo.InvariantCulture)}";
+                string rightOpStr = IsProgrammerVisible 
+                    ? Convert.ToString((long)_lastRightOperand.Value, CurrentBase).ToUpper() 
+                    : _lastRightOperand.Value.ToString(CultureInfo.InvariantCulture);
+                
+                Equation = $"{Display}{opForDisplay}{rightOpStr}";
                 try
                 {
                     double result = EvaluateTokens(Tokenize(Equation));
                     Display = FormatResult(result);
+                    CaretPosition = Display.Length;
                 }
                 catch { Display = "Error"; }
                 return;
@@ -262,12 +472,11 @@ public partial class MainWindowViewModel : ObservableObject
             try
             {
                 var tokens = Tokenize(Equation);
-                
                 if (tokens.Count >= 3)
                 {
                     string possibleOp = tokens[tokens.Count - 2];
-                    if (new[]{"*","/","+","-","^","mod","yroot","logy"}.Contains(possibleOp) && 
-                        double.TryParse(tokens.Last(), CultureInfo.InvariantCulture, out double right))
+                    if (new[]{"*","/","+","-","^","mod","yroot","logy","<<",">>", "AND", "OR", "XOR", "RoL", "RoR"}.Contains(possibleOp) && 
+                        TryParseNumber(tokens.Last(), out double right))
                     {
                         _lastOperator = possibleOp;
                         _lastRightOperand = right;
@@ -276,6 +485,7 @@ public partial class MainWindowViewModel : ObservableObject
 
                 double result = EvaluateTokens(tokens);
                 Display = FormatResult(result);
+                CaretPosition = Display.Length;
                 _isNewInput = true;
             }
             catch { Display = "Error"; }
@@ -289,8 +499,16 @@ public partial class MainWindowViewModel : ObservableObject
 
         if (func == "negate")
         {
-            if (Display.StartsWith("-")) Display = Display.Substring(1);
-            else if (Display != "0") Display = "-" + Display;
+            if (Display.StartsWith("-")) 
+            {
+                Display = Display.Substring(1);
+                if (CaretPosition > 0) CaretPosition--;
+            }
+            else if (Display != "0" && Display != "") 
+            {
+                Display = "-" + Display;
+                CaretPosition++;
+            }
             return;
         }
 
@@ -299,11 +517,7 @@ public partial class MainWindowViewModel : ObservableObject
             double val = EvaluateTokens(Tokenize(Display));
             double res = 0;
 
-            // Налаштування для DEG, RAD, GRAD
-            double angleFactor = 1.0;
-            if (AngleModeText == "DEG") angleFactor = Math.PI / 180.0;
-            else if (AngleModeText == "GRAD") angleFactor = Math.PI / 200.0;
-            // Для RAD angleFactor залишається 1.0
+            double angleFactor = AngleModeText == "DEG" ? Math.PI / 180.0 : (AngleModeText == "GRAD" ? Math.PI / 200.0 : 1.0);
 
             switch (func)
             {
@@ -316,8 +530,8 @@ public partial class MainWindowViewModel : ObservableObject
                 case "cube": res = Math.Pow(val, 3); break; 
                 case "cbrt": res = Math.Cbrt(val); break;   
                 case "pow2": res = Math.Pow(2, val); break; 
+                case "not": res = (double)(~(long)val); break; 
                 
-                // Тригонометрія з підтримкою HYP та DEG/RAD/GRAD
                 case "sin": res = IsHyperbolic ? Math.Sinh(val)/2 : Math.Sin(val * angleFactor); break;
                 case "cos": res = IsHyperbolic ? Math.Cosh(val)/2 : Math.Cos(val * angleFactor); break;
                 case "tan": res = IsHyperbolic ? Math.Tanh(val) : Math.Tan(val * angleFactor); break;
@@ -328,31 +542,27 @@ public partial class MainWindowViewModel : ObservableObject
                 default: res = _engine.CalculateScientific(val, func); break;
             }
 
-            // Формуємо красивий текст для рівняння
             string funcPrefix = IsHyperbolic ? "h" : "";
             string funcName = func == "cube" ? "cube" : func == "cbrt" ? "cbrt" : func == "asin" ? $"asin{funcPrefix}" : func == "acos" ? $"acos{funcPrefix}" : func == "atan" ? $"atan{funcPrefix}" : func == "pow2" ? "2^" : func;
-            
             if (new[] { "sin", "cos", "tan" }.Contains(func)) funcName = func + funcPrefix;
 
             Equation = $"{funcName}({Display})";
             Display = double.IsNaN(res) || double.IsInfinity(res) ? "Error" : FormatResult(res);
+            CaretPosition = Display.Length;
             _isNewInput = true;
         }
         catch { Display = "Error"; }
     });
 
-    // ==========================================
-    // ДВИГУН ПАРСИНГУ
-    // ==========================================
     private List<string> Tokenize(string expr)
     {
         expr = expr.Replace(" ", "").Replace("×", "*").Replace("÷", "/").Replace(",", ".");
-        var rawTokens = Regex.Split(expr, @"([\*\/\+\-\^\(\)]|mod|yroot|logy)").Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+        var rawTokens = Regex.Split(expr, @"(<<|>>|RoL|RoR|AND|OR|XOR|[\*\/\+\-\^\(\)]|mod|yroot|logy)").Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
 
         var tokens = new List<string>();
         for (int i = 0; i < rawTokens.Count; i++)
         {
-            if (rawTokens[i] == "-" && (i == 0 || new[]{"*","/","+","-","^","mod","yroot","logy","("}.Contains(tokens.LastOrDefault())))
+            if (rawTokens[i] == "-" && (i == 0 || new[]{"*","/","+","-","^","mod","yroot","logy","<<",">>", "RoL", "RoR", "AND", "OR", "XOR", "("}.Contains(tokens.LastOrDefault())))
             {
                 if (i + 1 < rawTokens.Count) { tokens.Add("-" + rawTokens[i + 1]); i++; }
                 else tokens.Add("-");
@@ -377,17 +587,22 @@ public partial class MainWindowViewModel : ObservableObject
 
             int countToRemove = (closeIdx < t.Count) ? (closeIdx - openIdx + 1) : (closeIdx - openIdx);
             t.RemoveRange(openIdx, countToRemove);
-            t.Insert(openIdx, subRes.ToString(CultureInfo.InvariantCulture));
+            
+            t.Insert(openIdx, IsProgrammerVisible ? Convert.ToString((long)subRes, CurrentBase).ToUpper() : subRes.ToString(CultureInfo.InvariantCulture));
         }
 
-        if (t.Count % 2 == 0 && t.Count > 0 && new[]{"*","/","+","-","^","mod","yroot","logy"}.Contains(t.Last())) 
+        if (t.Count % 2 == 0 && t.Count > 0 && new[]{"*","/","+","-","^","mod","yroot","logy","<<",">>", "RoL", "RoR", "AND", "OR", "XOR"}.Contains(t.Last())) 
             t.RemoveAt(t.Count - 1); 
 
+        ProcessOperations(t, new[] { "<<", ">>", "RoL", "RoR" });
         ProcessOperations(t, new[] { "^", "yroot", "logy" });
         ProcessOperations(t, new[] { "*", "/", "mod" });
         ProcessOperations(t, new[] { "+", "-" });
+        ProcessOperations(t, new[] { "AND" });
+        ProcessOperations(t, new[] { "XOR" });
+        ProcessOperations(t, new[] { "OR" });
 
-        if (t.Count > 0 && double.TryParse(t[0], CultureInfo.InvariantCulture, out double result)) return result;
+        if (t.Count > 0 && TryParseNumber(t[0], out double result)) return result;
         return 0;
     }
 
@@ -397,8 +612,8 @@ public partial class MainWindowViewModel : ObservableObject
         {
             if (Array.IndexOf(ops, tokens[i]) >= 0)
             {
-                if (double.TryParse(tokens[i - 1], CultureInfo.InvariantCulture, out double left) &&
-                    double.TryParse(tokens[i + 1], CultureInfo.InvariantCulture, out double right))
+                if (TryParseNumber(tokens[i - 1], out double left) &&
+                    TryParseNumber(tokens[i + 1], out double right))
                 {
                     double res = 0;
                     switch (tokens[i])
@@ -411,8 +626,26 @@ public partial class MainWindowViewModel : ObservableObject
                         case "mod": res = left % right; break;
                         case "+": res = left + right; break;
                         case "-": res = left - right; break;
+                        case "<<": res = (double)((long)left << (int)right); break;
+                        case ">>": res = (double)((long)left >> (int)right); break;
+                        case "AND": res = (double)((long)left & (long)right); break;
+                        case "OR": res = (double)((long)left | (long)right); break;
+                        case "XOR": res = (double)((long)left ^ (long)right); break;
+                        case "RoL": 
+                            int shiftL = (int)right % 64;
+                            if (shiftL < 0) shiftL += 64; 
+                            ulong uLeftL = (ulong)(long)left;
+                            res = shiftL == 0 ? left : (double)(long)((uLeftL << shiftL) | (uLeftL >> (64 - shiftL)));
+                            break;
+                        case "RoR":
+                            int shiftR = (int)right % 64;
+                            if (shiftR < 0) shiftR += 64;
+                            ulong uLeftR = (ulong)(long)left;
+                            res = shiftR == 0 ? left : (double)(long)((uLeftR >> shiftR) | (uLeftR << (64 - shiftR)));
+                            break;
                     }
-                    tokens[i - 1] = res.ToString(CultureInfo.InvariantCulture);
+                    
+                    tokens[i - 1] = IsProgrammerVisible ? Convert.ToString((long)res, CurrentBase).ToUpper() : res.ToString(CultureInfo.InvariantCulture);
                     tokens.RemoveRange(i, 2);
                     i -= 2; 
                 }
@@ -449,15 +682,28 @@ public partial class MainWindowViewModel : ObservableObject
     public async Task SetModeAsync(string mode)
     {
         IsMenuOpen = false;
-        IsStandardVisible = false; IsScientificVisible = false; IsCurrencyVisible = false;
-        Equation = ""; Display = "0"; _isNewInput = true;
+        IsStandardVisible = false; IsScientificVisible = false; IsCurrencyVisible = false; IsProgrammerVisible = false;
+        Equation = ""; 
+        Display = mode == "Programmer" ? "" : "0"; 
+        _isNewInput = true;
+        CaretPosition = Display.Length;
 
         switch (mode)
         {
             case "Standard": IsStandardVisible = true; ModeButtonText = "Звичайний"; break;
             case "Scientific": IsScientificVisible = true; ModeButtonText = "Інженерний"; break;
+            case "Programmer": 
+                IsProgrammerVisible = true; 
+                ModeButtonText = "Програміст"; 
+                CurrentBase = 10;
+                IsProgrammerSecondaryVisible = false; 
+                UpdateBasesState();
+                UpdateProgrammerDisplays();
+                break;
             case "Currency":
-                IsCurrencyVisible = true; ModeButtonText = "Валюти";
+                IsCurrencyVisible = true;
+                IsStandardVisible = true; 
+                ModeButtonText = "Валюти";
                 if (AvailableCurrencies.Count == 0)
                 {
                     Equation = "Завантаження..."; await _currencyService.FetchRatesAsync();
