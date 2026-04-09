@@ -45,6 +45,7 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private string? _selectedFrom;
     [ObservableProperty] private string? _selectedTo;
     [ObservableProperty] private bool _isMenuOpen = false;
+    [ObservableProperty] private bool _Six_sevenVisible = false;
 
     private bool _isNewInput = true;
     
@@ -663,13 +664,22 @@ public partial class MainWindowViewModel : ObservableObject
     });
 
     [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
-    public void Clear() => ExecuteWithHistory(() =>
+    public void Clear() 
     {
-        Display = IsProgrammerVisible ? "" : "0"; 
-        Equation = ""; _isNewInput = true;
-        CaretPosition = Display.Length;
-        _lastOperator = ""; _lastRightOperand = null;
-    });
+        if (Six_sevenVisible)
+        {
+            Six_sevenVisible = false;
+            return;
+        }
+
+        ExecuteWithHistory(() =>
+        {
+            Display = IsProgrammerVisible ? "" : "0"; 
+            Equation = ""; _isNewInput = true;
+            CaretPosition = Display.Length;
+            _lastOperator = ""; _lastRightOperand = null;
+        });
+    }
 
     [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
     public void Operator(string op)
@@ -723,6 +733,9 @@ public partial class MainWindowViewModel : ObservableObject
                 try
                 {
                     double result = EvaluateTokens(Tokenize(Equation));
+
+                    if(result == 67) Six_sevenVisible = true;
+
                     Display = FormatResult(result);
                     CaretPosition = Display.Length;
                 }
@@ -746,6 +759,7 @@ public partial class MainWindowViewModel : ObservableObject
                 }
 
                 double result = EvaluateTokens(tokens);
+                if(result == 67) Six_sevenVisible = true;
                 Display = FormatResult(result);
                 CaretPosition = Display.Length;
                 _isNewInput = true;

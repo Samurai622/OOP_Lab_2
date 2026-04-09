@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Calculator.ViewModels"
+        xmlns:anim="https://github.com/whistyun/AnimatedImage.Avalonia"
         x:Class="Calculator.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="Pixel Calculator"
@@ -713,6 +714,15 @@
                     </Grid>
                 </StackPanel>
             </Border>
+        </Grid>
+
+        <Grid Background="#E6000000" IsVisible="{Binding Six_sevenVisible}" ZIndex="9999">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                
+                <Image anim:ImageBehavior.AnimatedSource="avares://Calculator/Assets/67.gif" 
+                       Width="800" Height="600" Stretch="Uniform"/>
+                           
+            </StackPanel>
         </Grid>
         
     </Grid>
