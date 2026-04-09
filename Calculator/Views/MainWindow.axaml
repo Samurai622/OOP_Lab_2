@@ -93,6 +93,15 @@
             <Setter Property="Margin" Value="6,6,2,2"/>
             <Setter Property="Background" Value="{DynamicResource BtnPressedBg}"/>
         </Style>
+        <Style Selector="Button.mode_toggle:pressed">
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Foreground" Value="{DynamicResource ActionFg}"/>
+            <Setter Property="Margin" Value="4,4,0,0"/>
+        </Style>
+
+        <Style Selector="Button.mode_toggle.active">
+            <Setter Property="Foreground" Value="{DynamicResource ActionFg}"/>
+        </Style>
         <Style Selector="Button.active">
             <Setter Property="Background" Value="{DynamicResource BtnPressedBg}"/>
             <Setter Property="BorderThickness" Value="2,2,2,2"/>
@@ -215,8 +224,8 @@
                            
                         <Grid Grid.Row="0" Grid.ColumnSpan="5" ColumnDefinitions="Auto,Auto,Auto" Margin="0,0,0,5">
                             <Button Grid.Column="0" Content="{Binding AngleModeText}" Command="{Binding ToggleAngleModeCommand}" Classes="menu" Foreground="{DynamicResource ActionFg}" BorderThickness="0" Background="Transparent"/>
-                            <Button Grid.Column="1" Content="HYP" Command="{Binding ToggleHypCommand}" Classes="menu" Classes.active="{Binding IsHyperbolic}" Foreground="{DynamicResource EqFg}" BorderThickness="0" Background="Transparent"/>
-                            <Button Grid.Column="2" Content="F-E" Command="{Binding ToggleFECommand}" Classes="menu" Classes.active="{Binding IsExponentialMode}" Foreground="{DynamicResource EqFg}" BorderThickness="0" Background="Transparent"/>
+                            <Button Grid.Column="1" Content="HYP" Command="{Binding ToggleHypCommand}" Classes="menu mode_toggle" Classes.active="{Binding IsHyperbolic}" BorderThickness="0" Background="Transparent"/>
+                            <Button Grid.Column="2" Content="F-E" Command="{Binding ToggleFECommand}" Classes="menu mode_toggle" Classes.active="{Binding IsExponentialMode}" BorderThickness="0" Background="Transparent"/>
                         </Grid>
 
                         <Grid Grid.Row="1" Grid.ColumnSpan="5" ColumnDefinitions="*,*,*,*,*,*" Margin="0,0,0,5">
