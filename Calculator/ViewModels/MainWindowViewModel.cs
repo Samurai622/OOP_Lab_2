@@ -378,6 +378,16 @@ public partial class MainWindowViewModel : ObservableObject
         UpdateSplitDisplay();
 
         IsUpsideDown = (value == "80085");
+
+        if(value == "404")
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                Display = "Помилка 404. Результат не знайдено";
+                _isNewInput = true;
+                CaretPosition = Display.Length;
+            });
+        }
     }
     partial void OnCaretPositionChanged(int value)
     {
@@ -738,8 +748,9 @@ public partial class MainWindowViewModel : ObservableObject
                     double result = EvaluateTokens(Tokenize(Equation));
 
                     if(result == 67) Six_sevenVisible = true;
+                    
 
-                    Display = FormatResult(result);
+                    Display = result == 404 ? "Помилка 404. Результат не знайдено" : FormatResult(result);
                     CaretPosition = Display.Length;
                 }
                 catch { Display = "Error"; }
