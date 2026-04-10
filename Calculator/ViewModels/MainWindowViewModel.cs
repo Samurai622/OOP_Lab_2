@@ -409,16 +409,21 @@ public partial class MainWindowViewModel : ObservableObject
         Display = state.Display; Equation = state.Equation; _isNewInput = state.IsNewInput;
         CaretPosition = Display.Length;
     }
-    private void ExecuteWithHistory(Action action) => _history.ExecuteCommand(new StateCommand(action, GetState, RestoreState));
+    private void ExecuteWithHistory(Action action)
+    {
+        if(Six_sevenVisible) return;
+        _history.ExecuteCommand(new StateCommand(action, GetState, RestoreState));
+    }
 
-    [RelayCommand] public void Undo() => _history.Undo();
-    [RelayCommand] public void Redo() => _history.Redo();
+    [RelayCommand] public void Undo() { if(Six_sevenVisible) return; _history.Undo(); }
+    [RelayCommand] public void Redo() { if(Six_sevenVisible) return; _history.Redo(); }
     [RelayCommand] public void ToggleSecondaryMath() => IsSecondaryMathVisible = !IsSecondaryMathVisible;
     [RelayCommand] public void ToggleProgrammerSecondary() => IsProgrammerSecondaryVisible = !IsProgrammerSecondaryVisible;
 
     [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
     public void MoveCaret(string direction)
     {
+        if(Six_sevenVisible) return;
         if (int.TryParse(direction, out int dir))
         {
             int newPos = CaretPosition + dir;
@@ -443,6 +448,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     public void SetBase(string baseStr)
     {
+        if(Six_sevenVisible) return;
         if (!int.TryParse(baseStr, out int newBase)) return;
         try
         {
@@ -498,7 +504,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     public void Memory(string action)
     {
-        if (IsTextErrorOrEasterEgg()) return;
+        if (Six_sevenVisible || IsTextErrorOrEasterEgg()) return;
         double currentVal = 0;
         try { currentVal = EvaluateTokens(Tokenize(Display)); } catch { return; }
 
