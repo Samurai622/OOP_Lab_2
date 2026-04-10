@@ -692,8 +692,6 @@ public partial class MainWindowViewModel : ObservableObject
             Equation = ""; _isNewInput = true;
             CaretPosition = Display.Length;
             _lastOperator = ""; _lastRightOperand = null;
-
-            IsUpsideDown = false;
         });
     }
 
