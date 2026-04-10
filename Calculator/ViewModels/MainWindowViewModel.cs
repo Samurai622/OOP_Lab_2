@@ -19,6 +19,7 @@ namespace Calculator.ViewModels;
 
 public partial class MainWindowViewModel : ObservableObject
 {
+    public Action? OnReturnToStyleSelectionRequested;
     private readonly CalculatorEngine _engine = new();
     private readonly HistoryManager _history = new();
     private readonly CurrencyService _currencyService = new();
@@ -203,6 +204,13 @@ public partial class MainWindowViewModel : ObservableObject
         UpdateSplitDisplay();
         UpdateDateDifference();
         UpdateAddSubDate();
+    }
+
+    [RelayCommand]
+    public void ReturnToStyleSelection()
+    {
+        IsMenuOpen = false;
+        OnReturnToStyleSelectionRequested?.Invoke();
     }
 
     // --- Команди Модального Календаря ---
@@ -1060,4 +1068,6 @@ public partial class MainWindowViewModel : ObservableObject
         var app = Application.Current;
         if (app != null) app.RequestedThemeVariant = app.RequestedThemeVariant == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
     }
+
+
 }

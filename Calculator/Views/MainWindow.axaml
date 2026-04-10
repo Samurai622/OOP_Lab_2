@@ -47,41 +47,6 @@
         <KeyBinding Gesture="Oem2" Command="{Binding OperatorCommand}" CommandParameter="÷"/>
     </Window.KeyBindings>
 
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Default">
-                    <SolidColorBrush x:Key="AppBg">#E8E6E1</SolidColorBrush>
-                    <SolidColorBrush x:Key="BtnBg">#F2F2F2</SolidColorBrush>
-                    <SolidColorBrush x:Key="BtnFg">#111111</SolidColorBrush>
-                    <SolidColorBrush x:Key="BtnBorder">#222222</SolidColorBrush>
-                    <SolidColorBrush x:Key="BtnPressedBg">#E0E0E0</SolidColorBrush>
-                    <SolidColorBrush x:Key="ActionFg">#E62222</SolidColorBrush>
-                    <SolidColorBrush x:Key="OperatorBg">#EAEAEA</SolidColorBrush>
-                    <SolidColorBrush x:Key="EqualsBg">#8CA674</SolidColorBrush>
-                    <SolidColorBrush x:Key="DisplayBg">#8CA674</SolidColorBrush>
-                    <SolidColorBrush x:Key="DisplayBorder">#222222</SolidColorBrush>
-                    <SolidColorBrush x:Key="EqFg">#4A5D3B</SolidColorBrush>
-                    <SolidColorBrush x:Key="DisplayFg">#111111</SolidColorBrush>
-                </ResourceDictionary>
-                <ResourceDictionary x:Key="Dark">
-                    <SolidColorBrush x:Key="AppBg">#2A2B2A</SolidColorBrush>
-                    <SolidColorBrush x:Key="BtnBg">#3A3B3A</SolidColorBrush>
-                    <SolidColorBrush x:Key="BtnFg">#E8E6E1</SolidColorBrush>
-                    <SolidColorBrush x:Key="BtnBorder">#111111</SolidColorBrush>
-                    <SolidColorBrush x:Key="BtnPressedBg">#222222</SolidColorBrush>
-                    <SolidColorBrush x:Key="ActionFg">#FF6B6B</SolidColorBrush>
-                    <SolidColorBrush x:Key="OperatorBg">#454845</SolidColorBrush>
-                    <SolidColorBrush x:Key="EqualsBg">#5E734D</SolidColorBrush>
-                    <SolidColorBrush x:Key="DisplayBg">#5E734D</SolidColorBrush>
-                    <SolidColorBrush x:Key="DisplayBorder">#111111</SolidColorBrush>
-                    <SolidColorBrush x:Key="EqFg">#2D3825</SolidColorBrush>
-                    <SolidColorBrush x:Key="DisplayFg">#0A0D08</SolidColorBrush>
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
-        </ResourceDictionary>
-    </Window.Resources>
-
     <Window.Styles>
         <Style Selector="Button">
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -265,6 +230,11 @@
 
                                 <TextBlock Text="КОНВЕРТЕР" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ActionFg}" Margin="5,0,5,0" FontFamily="Consolas, Courier New, Monospace"/>
                                 <Button Content="Валюти" Command="{Binding SetModeCommand}" CommandParameter="Currency" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
+
+                                <Border Height="2" Background="{DynamicResource BtnBorder}" Margin="5,10,5,10" Opacity="0.2"/>
+                                
+                                <TextBlock Text="НАЛАШТУВАННЯ" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ActionFg}" Margin="5,0,5,0" FontFamily="Consolas, Courier New, Monospace"/>
+                                <Button Content="Вибір стилю" Command="{Binding ReturnToStyleSelectionCommand}" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
                             </StackPanel>
                         </ScrollViewer>
                     </Border>

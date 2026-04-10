@@ -1,0 +1,31 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Calculator.ViewModels"
+        x:Class="Calculator.Views.StyleSelectionWindow"
+        x:DataType="vm:StyleSelectionViewModel"
+        Title="Вибір стилю"
+        Width="350" Height="400"
+        WindowStartupLocation="CenterScreen"
+        Background="#2A2B2A">
+    
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20" Width="250">
+        <TextBlock Text="ОБЕРІТЬ СТИЛЬ" FontSize="22" FontWeight="Bold" Foreground="#E8E6E1" FontFamily="Consolas" HorizontalAlignment="Center"/>
+        
+        <ListBox ItemsSource="{Binding AvailableThemes}" 
+                 SelectedItem="{Binding SelectedTheme}"
+                 Background="#3A3B3A" Foreground="#E8E6E1"
+                 BorderThickness="2" BorderBrush="#111111" CornerRadius="4">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}" FontFamily="Consolas" FontSize="16" Padding="5"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <Button Content="ЗАПУСТИТИ" Command="{Binding LaunchCalculatorCommand}" 
+                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                Background="#8CA674" Foreground="#111111" 
+                FontFamily="Consolas" FontSize="20" FontWeight="Bold"
+                BorderThickness="2,2,4,4" BorderBrush="#111111" Cursor="Hand" Padding="10"/>
+    </StackPanel>
+</Window>

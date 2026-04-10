@@ -1,0 +1,33 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Default">
+            <SolidColorBrush x:Key="AppBg">#F0F4F8</SolidColorBrush>
+            <SolidColorBrush x:Key="BtnBg">#FFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="BtnFg">#0F172A</SolidColorBrush>
+            <SolidColorBrush x:Key="BtnBorder">#0EA5E9</SolidColorBrush>
+            <SolidColorBrush x:Key="BtnPressedBg">#E0F2FE</SolidColorBrush>
+            <SolidColorBrush x:Key="ActionFg">#EC4899</SolidColorBrush>
+            <SolidColorBrush x:Key="OperatorBg">#F8FAFC</SolidColorBrush>
+            <SolidColorBrush x:Key="EqualsBg">#0EA5E9</SolidColorBrush>
+            <SolidColorBrush x:Key="DisplayBg">#0F172A</SolidColorBrush>
+            <SolidColorBrush x:Key="DisplayBorder">#0EA5E9</SolidColorBrush>
+            <SolidColorBrush x:Key="EqFg">#94A3B8</SolidColorBrush>
+            <SolidColorBrush x:Key="DisplayFg">#38BDF8</SolidColorBrush>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="AppBg">#0B0F19</SolidColorBrush>
+            <SolidColorBrush x:Key="BtnBg">#1E293B</SolidColorBrush>
+            <SolidColorBrush x:Key="BtnFg">#F8FAFC</SolidColorBrush>
+            <SolidColorBrush x:Key="BtnBorder">#38BDF8</SolidColorBrush>
+            <SolidColorBrush x:Key="BtnPressedBg">#0F172A</SolidColorBrush>
+            <SolidColorBrush x:Key="ActionFg">#F43F5E</SolidColorBrush>
+            <SolidColorBrush x:Key="OperatorBg">#111827</SolidColorBrush>
+            <SolidColorBrush x:Key="EqualsBg">#0284C7</SolidColorBrush>
+            <SolidColorBrush x:Key="DisplayBg">#020617</SolidColorBrush>
+            <SolidColorBrush x:Key="DisplayBorder">#38BDF8</SolidColorBrush>
+            <SolidColorBrush x:Key="EqFg">#64748B</SolidColorBrush>
+            <SolidColorBrush x:Key="DisplayFg">#38BDF8</SolidColorBrush>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

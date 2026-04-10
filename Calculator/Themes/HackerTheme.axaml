@@ -1,0 +1,39 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.ThemeDictionaries>
+        
+        <ResourceDictionary x:Key="Default">
+            <SolidColorBrush x:Key="AppBg">#F0F5F0</SolidColorBrush>
+            <SolidColorBrush x:Key="BtnBg">#FFFFFF</SolidColorBrush>
+            
+            <SolidColorBrush x:Key="BtnFg">#005A0A</SolidColorBrush>
+            <SolidColorBrush x:Key="BtnBorder">#008F11</SolidColorBrush>
+            
+            <SolidColorBrush x:Key="BtnPressedBg">#D4E8D4</SolidColorBrush>
+            <SolidColorBrush x:Key="ActionFg">#CC0000</SolidColorBrush> 
+            <SolidColorBrush x:Key="OperatorBg">#E6EFE6</SolidColorBrush>
+            <SolidColorBrush x:Key="EqualsBg">#008F11</SolidColorBrush>
+            
+            <SolidColorBrush x:Key="DisplayBg">#FFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="DisplayBorder">#008F11</SolidColorBrush>
+            <SolidColorBrush x:Key="EqFg">#005A0A</SolidColorBrush>
+            <SolidColorBrush x:Key="DisplayFg">#003B00</SolidColorBrush>
+        </ResourceDictionary>
+
+        <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="AppBg">#050505</SolidColorBrush>
+            <SolidColorBrush x:Key="BtnBg">#0A0A0A</SolidColorBrush>
+            <SolidColorBrush x:Key="BtnFg">#00FF41</SolidColorBrush>
+            <SolidColorBrush x:Key="BtnBorder">#008F11</SolidColorBrush>
+            <SolidColorBrush x:Key="BtnPressedBg">#003B00</SolidColorBrush>
+            <SolidColorBrush x:Key="ActionFg">#FF003C</SolidColorBrush>
+            <SolidColorBrush x:Key="OperatorBg">#111111</SolidColorBrush>
+            <SolidColorBrush x:Key="EqualsBg">#008F11</SolidColorBrush>
+            <SolidColorBrush x:Key="DisplayBg">#000000</SolidColorBrush>
+            <SolidColorBrush x:Key="DisplayBorder">#00FF41</SolidColorBrush>
+            <SolidColorBrush x:Key="EqFg">#008F11</SolidColorBrush>
+            <SolidColorBrush x:Key="DisplayFg">#00FF41</SolidColorBrush>
+        </ResourceDictionary>
+        
+    </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>
