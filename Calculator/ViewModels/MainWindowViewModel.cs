@@ -21,6 +21,7 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly CalculatorEngine _engine = new();
     private readonly HistoryManager _history = new();
     private readonly CurrencyService _currencyService = new();
+    private readonly EasterEggService _easterEggService = new();
 
     [ObservableProperty] private string _display = "0";
     [ObservableProperty] private string _equation = "";
@@ -47,6 +48,7 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private bool _isMenuOpen = false;
     [ObservableProperty] private bool _Six_sevenVisible = false;
     [ObservableProperty] private bool _isUpsideDown = false;
+    [ObservableProperty] private bool _isHackerMode = false;
 
     private bool _isNewInput = true;
     
@@ -384,6 +386,26 @@ public partial class MainWindowViewModel : ObservableObject
             Dispatcher.UIThread.Post(() =>
             {
                 Display = "Помилка 404. Результат не знайдено";
+                _isNewInput = true;
+                CaretPosition = Display.Length;
+            });
+        }
+
+        if(value == "1992")
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                Display = "Grove Street - Home";
+                _isNewInput = true;
+                CaretPosition = Display.Length;
+            });
+        }
+
+        if(value == "2077")
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                Display = "Wake up, Samurai. We have a city to burn.";
                 _isNewInput = true;
                 CaretPosition = Display.Length;
             });
@@ -726,14 +748,44 @@ public partial class MainWindowViewModel : ObservableObject
             CaretPosition = leftPart.Length;
         });
     }
+    private void ProcessCalculationResult(double result)
+    {
+        if (result == 67) Six_sevenVisible = true;
+
+        if (result == 404)
+        {
+            Display = "Помилка 404: результат не знайдено";
+            CaretPosition = Display.Length;
+        }
+        else if (result == 1337)
+        {
+            // Запускаємо хакерський сервіс асинхронно
+            _ = _easterEggService.CheckAndTrigger1337Async(result, (isActive, text) =>
+            {
+                // Оскільки таймер працює в фоні, оновлюємо UI через Dispatcher
+                Dispatcher.UIThread.Post(() =>
+                {
+                    IsHackerMode = isActive;
+                    Display = text;
+                    _isNewInput = true;
+                    CaretPosition = Display.Length;
+                });
+            });
+        }
+        else
+        {
+            Display = FormatResult(result);
+            CaretPosition = Display.Length;
+        }
+    }
 
     [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
     public void Calculate()
     {
-        if (IsCurrencyVisible) return;
+        if (IsCurrencyVisible || IsHackerMode) return; // Блокуємо, якщо калькулятор "взломано"
         ExecuteWithHistory(() =>
         {
-            if (Display == "Error") return;
+            if (Display == "Error" || Display.Contains("404")) return;
 
             if (_isNewInput && !string.IsNullOrEmpty(_lastOperator) && _lastRightOperand != null)
             {
@@ -746,12 +798,7 @@ public partial class MainWindowViewModel : ObservableObject
                 try
                 {
                     double result = EvaluateTokens(Tokenize(Equation));
-
-                    if(result == 67) Six_sevenVisible = true;
-                    
-
-                    Display = result == 404 ? "Помилка 404. Результат не знайдено" : FormatResult(result);
-                    CaretPosition = Display.Length;
+                    ProcessCalculationResult(result); // Використовуємо новий метод
                 }
                 catch { Display = "Error"; }
                 return;
@@ -773,9 +820,7 @@ public partial class MainWindowViewModel : ObservableObject
                 }
 
                 double result = EvaluateTokens(tokens);
-                if(result == 67) Six_sevenVisible = true;
-                Display = FormatResult(result);
-                CaretPosition = Display.Length;
+                ProcessCalculationResult(result); // Використовуємо новий метод
                 _isNewInput = true;
             }
             catch { Display = "Error"; }
