@@ -46,6 +46,7 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private string? _selectedTo;
     [ObservableProperty] private bool _isMenuOpen = false;
     [ObservableProperty] private bool _Six_sevenVisible = false;
+    [ObservableProperty] private bool _isUpsideDown = false;
 
     private bool _isNewInput = true;
     
@@ -375,6 +376,8 @@ public partial class MainWindowViewModel : ObservableObject
         RealTimeCurrencyConvert();
         UpdateProgrammerDisplays();
         UpdateSplitDisplay();
+
+        IsUpsideDown = (value == "80085");
     }
     partial void OnCaretPositionChanged(int value)
     {
