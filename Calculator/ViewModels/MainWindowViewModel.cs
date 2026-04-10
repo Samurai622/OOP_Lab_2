@@ -13,6 +13,7 @@ using CommunityToolkit.Mvvm.Input;
 using Calculator.Models;
 using Calculator.Commands;
 using Calculator.Services;
+using System.ComponentModel;
 
 namespace Calculator.ViewModels;
 
@@ -373,43 +374,19 @@ public partial class MainWindowViewModel : ObservableObject
 
     partial void OnSelectedFromChanged(string? value) => RealTimeCurrencyConvert();
     partial void OnSelectedToChanged(string? value) => RealTimeCurrencyConvert();
+    private bool IsTextErrorOrEasterEgg()
+    {
+        return Display == "Error" || 
+               Display.Contains("Помилка 404") || 
+               Display.Contains("Grove") || 
+               Display.Contains("Wake") ||
+               Display == "L33T H4X0R";
+    }
     partial void OnDisplayChanged(string value) 
     {
         RealTimeCurrencyConvert();
         UpdateProgrammerDisplays();
         UpdateSplitDisplay();
-
-        IsUpsideDown = (value == "80085");
-
-        if(value == "404")
-        {
-            Dispatcher.UIThread.Post(() =>
-            {
-                Display = "Помилка 404. Результат не знайдено";
-                _isNewInput = true;
-                CaretPosition = Display.Length;
-            });
-        }
-
-        if(value == "1992")
-        {
-            Dispatcher.UIThread.Post(() =>
-            {
-                Display = "Grove Street - Home";
-                _isNewInput = true;
-                CaretPosition = Display.Length;
-            });
-        }
-
-        if(value == "2077")
-        {
-            Dispatcher.UIThread.Post(() =>
-            {
-                Display = "Wake up, Samurai. We have a city to burn.";
-                _isNewInput = true;
-                CaretPosition = Display.Length;
-            });
-        }
     }
     partial void OnCaretPositionChanged(int value)
     {
@@ -497,7 +474,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void UpdateProgrammerDisplays()
     {
-        if (!IsProgrammerVisible || Display == "Error") return;
+        if (!IsProgrammerVisible || IsTextErrorOrEasterEgg()) return;
         
         if (string.IsNullOrWhiteSpace(Display))
         {
@@ -521,7 +498,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     public void Memory(string action)
     {
-        if (Display == "Error") return;
+        if (IsTextErrorOrEasterEgg()) return;
         double currentVal = 0;
         try { currentVal = EvaluateTokens(Tokenize(Display)); } catch { return; }
 
@@ -582,7 +559,7 @@ public partial class MainWindowViewModel : ObservableObject
 
         ExecuteWithHistory(() =>
         {
-            if (Display == "Error") { Display = IsProgrammerVisible ? "" : "0"; CaretPosition = Display.Length; }
+            if (IsTextErrorOrEasterEgg()) { Display = IsProgrammerVisible ? "" : "0"; CaretPosition = Display.Length; }
 
             if (CaretPosition < 0) CaretPosition = 0;
             if (CaretPosition > Display.Length) CaretPosition = Display.Length;
@@ -668,7 +645,9 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
     public void Backspace() => ExecuteWithHistory(() =>
     {
-        if (_isNewInput || Display == "Error" || CaretPosition <= 0) return;
+        if (IsTextErrorOrEasterEgg() || CaretPosition <= 0) return;
+
+        _isNewInput = false;
 
         var textOps = new[] { "mod", "yroot", "logy", "<<", ">>", "AND", "OR", "XOR", "RoL", "RoR" };
         
@@ -713,6 +692,8 @@ public partial class MainWindowViewModel : ObservableObject
             Equation = ""; _isNewInput = true;
             CaretPosition = Display.Length;
             _lastOperator = ""; _lastRightOperand = null;
+
+            IsUpsideDown = false;
         });
     }
 
@@ -721,7 +702,7 @@ public partial class MainWindowViewModel : ObservableObject
     {
         ExecuteWithHistory(() =>
         {
-            if (Display == "Error") return;
+            if (IsTextErrorOrEasterEgg()) return;
 
             if (Display == "") 
             {
@@ -750,11 +731,24 @@ public partial class MainWindowViewModel : ObservableObject
     }
     private void ProcessCalculationResult(double result)
     {
+        if(result == 80085) IsUpsideDown = true;
+        else if(result == 80086) IsUpsideDown = false;
+
         if (result == 67) Six_sevenVisible = true;
 
         if (result == 404)
         {
             Display = "Помилка 404: результат не знайдено";
+            CaretPosition = Display.Length;
+        }
+        else if(result == 1992)
+        {
+            Display = "Grove Street - Home";
+            CaretPosition = Display.Length;
+        }
+        else if(result == 2077)
+        {
+            Display = "Wake up, Samurai. We have a city ti burn";
             CaretPosition = Display.Length;
         }
         else if (result == 1337)
@@ -785,7 +779,7 @@ public partial class MainWindowViewModel : ObservableObject
         if (IsCurrencyVisible || IsHackerMode) return; // Блокуємо, якщо калькулятор "взломано"
         ExecuteWithHistory(() =>
         {
-            if (Display == "Error" || Display.Contains("404")) return;
+            if (IsTextErrorOrEasterEgg()) return;
 
             if (_isNewInput && !string.IsNullOrEmpty(_lastOperator) && _lastRightOperand != null)
             {
@@ -830,7 +824,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     public void Scientific(string func) => ExecuteWithHistory(() =>
     {
-        if (Display == "Error") return;
+        if (IsTextErrorOrEasterEgg()) return;
 
         if (func == "negate")
         {
