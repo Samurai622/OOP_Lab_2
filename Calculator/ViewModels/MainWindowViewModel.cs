@@ -26,7 +26,8 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly EasterEggService _easterEggService = new();
     private readonly VolumeConverterService _volumeService = new();
     private readonly LengthConverterService _lengthService = new();
-    private readonly WeightConverterService _weightService = new(); // Додано сервіс маси
+    private readonly WeightConverterService _weightService = new();
+    private readonly TemperatureConverterService _temperatureService = new(); // Додано сервіс температури
 
     [ObservableProperty] private string _display = "0";
     [ObservableProperty] private string _equation = "";
@@ -42,7 +43,8 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private bool _isCurrencyVisible = false;
     [ObservableProperty] private bool _isVolumeVisible = false;
     [ObservableProperty] private bool _isLengthVisible = false;
-    [ObservableProperty] private bool _isWeightVisible = false; // Додано видимість маси
+    [ObservableProperty] private bool _isWeightVisible = false;
+    [ObservableProperty] private bool _isTemperatureVisible = false; // Додано видимість температури
     [ObservableProperty] private bool _isProgrammerVisible = false;
     [ObservableProperty] private bool _isDateCalcVisible = false;
     
@@ -60,10 +62,14 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private string? _selectedLengthFrom;
     [ObservableProperty] private string? _selectedLengthTo;
 
-    // Властивості маси
     [ObservableProperty] private ObservableCollection<string> _availableWeightUnits = new();
     [ObservableProperty] private string? _selectedWeightFrom;
     [ObservableProperty] private string? _selectedWeightTo;
+
+    // Властивості температури
+    [ObservableProperty] private ObservableCollection<string> _availableTemperatureUnits = new();
+    [ObservableProperty] private string? _selectedTemperatureFrom;
+    [ObservableProperty] private string? _selectedTemperatureTo;
 
     [ObservableProperty] private bool _isMenuOpen = false;
     [ObservableProperty] private bool _Six_sevenVisible = false;
@@ -390,21 +396,16 @@ public partial class MainWindowViewModel : ObservableObject
         MoveCaretCommand.NotifyCanExecuteChanged();
     }
 
-    // Тригери валют
     partial void OnSelectedFromChanged(string? value) => RealTimeCurrencyConvert();
     partial void OnSelectedToChanged(string? value) => RealTimeCurrencyConvert();
-
-    // Тригери об'єму
     partial void OnSelectedVolumeFromChanged(string? value) => RealTimeVolumeConvert();
     partial void OnSelectedVolumeToChanged(string? value) => RealTimeVolumeConvert();
-
-    // Тригери довжини
     partial void OnSelectedLengthFromChanged(string? value) => RealTimeLengthConvert();
     partial void OnSelectedLengthToChanged(string? value) => RealTimeLengthConvert();
-
-    // Тригери маси
     partial void OnSelectedWeightFromChanged(string? value) => RealTimeWeightConvert();
     partial void OnSelectedWeightToChanged(string? value) => RealTimeWeightConvert();
+    partial void OnSelectedTemperatureFromChanged(string? value) => RealTimeTemperatureConvert();
+    partial void OnSelectedTemperatureToChanged(string? value) => RealTimeTemperatureConvert();
 
     private bool IsTextErrorOrEasterEgg()
     {
@@ -423,7 +424,8 @@ public partial class MainWindowViewModel : ObservableObject
         RealTimeCurrencyConvert();
         RealTimeVolumeConvert();
         RealTimeLengthConvert();
-        RealTimeWeightConvert(); // Виклик конвертера маси
+        RealTimeWeightConvert();
+        RealTimeTemperatureConvert(); // Виклик конвертера температури
         UpdateProgrammerDisplays();
         UpdateSplitDisplay();
     }
@@ -601,6 +603,9 @@ public partial class MainWindowViewModel : ObservableObject
         { Equation = "Оберіть одиниці!"; return; }
 
         if (IsWeightVisible && (string.IsNullOrEmpty(SelectedWeightFrom) || string.IsNullOrEmpty(SelectedWeightTo)))
+        { Equation = "Оберіть одиниці!"; return; }
+
+        if (IsTemperatureVisible && (string.IsNullOrEmpty(SelectedTemperatureFrom) || string.IsNullOrEmpty(SelectedTemperatureTo)))
         { Equation = "Оберіть одиниці!"; return; }
 
         if (IsProgrammerVisible)
@@ -828,7 +833,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
     public void Calculate()
     {
-        if (IsCurrencyVisible || IsVolumeVisible || IsLengthVisible || IsWeightVisible || IsHackerMode) return; 
+        if (IsCurrencyVisible || IsVolumeVisible || IsLengthVisible || IsWeightVisible || IsTemperatureVisible || IsHackerMode) return; 
         
         ExecuteWithHistory(() =>
         {
@@ -1119,6 +1124,26 @@ public partial class MainWindowViewModel : ObservableObject
         catch { Equation = "Помилка вводу"; }
     }
 
+    private void RealTimeTemperatureConvert()
+    {
+        if (!IsTemperatureVisible) return;
+        if (string.IsNullOrEmpty(SelectedTemperatureFrom) || string.IsNullOrEmpty(SelectedTemperatureTo)) 
+        { 
+            Equation = "Оберіть одиниці"; 
+            return; 
+        }
+        
+        try
+        {
+            double amount = EvaluateTokens(Tokenize(Display));
+            double res = _temperatureService.Convert(amount, SelectedTemperatureFrom, SelectedTemperatureTo);
+            
+            string shortTo = SelectedTemperatureTo.Split(' ').Last().Trim('(', ')');
+            Equation = $"= {Math.Round(res, 6).ToString(CultureInfo.InvariantCulture)} {shortTo}";
+        }
+        catch { Equation = "Помилка вводу"; }
+    }
+
     [RelayCommand] public void ToggleMenu() => IsMenuOpen = !IsMenuOpen;
 
     [RelayCommand]
@@ -1127,7 +1152,7 @@ public partial class MainWindowViewModel : ObservableObject
         IsMenuOpen = false;
         IsStandardVisible = false; IsScientificVisible = false; IsCurrencyVisible = false; 
         IsProgrammerVisible = false; IsDateCalcVisible = false; IsVolumeVisible = false; 
-        IsLengthVisible = false; IsWeightVisible = false;
+        IsLengthVisible = false; IsWeightVisible = false; IsTemperatureVisible = false;
         
         IsMainDisplayVisible = mode != "DateCalc";
         
@@ -1189,10 +1214,22 @@ public partial class MainWindowViewModel : ObservableObject
                 if (AvailableWeightUnits.Count == 0)
                 {
                     AvailableWeightUnits = new ObservableCollection<string>(_weightService.GetUnits());
-                    SelectedWeightFrom = AvailableWeightUnits[3]; // Кілограми
-                    SelectedWeightTo = AvailableWeightUnits[2];   // Грами
+                    SelectedWeightFrom = AvailableWeightUnits[3]; 
+                    SelectedWeightTo = AvailableWeightUnits[2];   
                 }
                 RealTimeWeightConvert(); 
+                break;
+            case "Temperature":
+                IsTemperatureVisible = true;
+                IsStandardVisible = true; 
+                ModeButtonText = "Температура";
+                if (AvailableTemperatureUnits.Count == 0)
+                {
+                    AvailableTemperatureUnits = new ObservableCollection<string>(_temperatureService.GetUnits());
+                    SelectedTemperatureFrom = AvailableTemperatureUnits[0]; // Цельсій
+                    SelectedTemperatureTo = AvailableTemperatureUnits[1];   // Фаренгейт
+                }
+                RealTimeTemperatureConvert(); 
                 break;
             case "DateCalc":
                 IsDateCalcVisible = true;

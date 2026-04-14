@@ -214,27 +214,41 @@
             <SplitView Grid.Row="1" IsPaneOpen="{Binding IsMenuOpen}" DisplayMode="Overlay" OpenPaneLength="260" PaneBackground="{DynamicResource AppBg}">
             
                 <SplitView.Pane>
-                    <Border BorderBrush="{DynamicResource BtnBorder}" BorderThickness="0,2,2,0" Background="{DynamicResource BtnPressedBg}">
-                        <ScrollViewer Padding="15">
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="КАЛЬКУЛЯТОР" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ActionFg}" Margin="5,10,5,0" FontFamily="Consolas, Courier New, Monospace"/>
+                    <Border BorderBrush="{DynamicResource BtnBorder}" 
+                            BorderThickness="0,2,2,0" 
+                            Background="{DynamicResource BtnPressedBg}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                                    HorizontalScrollBarVisibility="Disabled"
+                                    Padding="15"> <StackPanel Spacing="8"> <TextBlock Text="КАЛЬКУЛЯТОР" FontSize="14" FontWeight="Bold" 
+                                        Foreground="{DynamicResource ActionFg}" Margin="5,10,5,0" 
+                                        FontFamily="Consolas, Courier New, Monospace"/>
+                                
                                 <Button Content="Звичайний" Command="{Binding SetModeCommand}" CommandParameter="Standard" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
                                 <Button Content="Інженерний" Command="{Binding SetModeCommand}" CommandParameter="Scientific" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
                                 <Button Content="Програміст" Command="{Binding SetModeCommand}" CommandParameter="Programmer" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
                                 <Button Content="Обчислення дат" Command="{Binding SetModeCommand}" CommandParameter="DateCalc" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
-                            
+
                                 <Border Height="2" Background="{DynamicResource BtnBorder}" Margin="5,10,5,10" Opacity="0.2"/>
 
-                                <TextBlock Text="КОНВЕРТЕР" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ActionFg}" Margin="5,0,5,0" FontFamily="Consolas, Courier New, Monospace"/>
+                                <TextBlock Text="КОНВЕРТЕР" FontSize="14" FontWeight="Bold" 
+                                        Foreground="{DynamicResource ActionFg}" Margin="5,0,5,0" 
+                                        FontFamily="Consolas, Courier New, Monospace"/>
+                                
                                 <Button Content="Валюти" Command="{Binding SetModeCommand}" CommandParameter="Currency" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
                                 <Button Content="Об'єм" Command="{Binding SetModeCommand}" CommandParameter="Volume" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
                                 <Button Content="Довжина" Command="{Binding SetModeCommand}" CommandParameter="Length" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
                                 <Button Content="Вага і маса" Command="{Binding SetModeCommand}" CommandParameter="Weight" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
+                                <Button Content="Температура" Command="{Binding SetModeCommand}" CommandParameter="Temperature" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
 
                                 <Border Height="2" Background="{DynamicResource BtnBorder}" Margin="5,10,5,10" Opacity="0.2"/>
                                 
-                                <TextBlock Text="НАЛАШТУВАННЯ" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ActionFg}" Margin="5,0,5,0" FontFamily="Consolas, Courier New, Monospace"/>
-                                <Button Content="Вибір стилю" Command="{Binding ReturnToStyleSelectionCommand}" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
+                                <TextBlock Text="НАЛАШТУВАННЯ" FontSize="14" FontWeight="Bold" 
+                                        Foreground="{DynamicResource ActionFg}" Margin="5,0,5,0" 
+                                        FontFamily="Consolas, Courier New, Monospace"/>
+                                <Button Content="Вибір стилю" Command="{Binding ReturnToStyleSelectionCommand}" 
+                                        Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
+                                
+                                <Border Height="20" />
                             </StackPanel>
                         </ScrollViewer>
                     </Border>
@@ -286,6 +300,12 @@
                             <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableWeightUnits}" SelectedItem="{Binding SelectedWeightFrom}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
                             <TextBlock Grid.Column="1" Text=" ➔ " VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ActionFg}"/>
                             <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableWeightUnits}" SelectedItem="{Binding SelectedWeightTo}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
+                        </Grid>
+
+                        <Grid Grid.Row="1" ColumnDefinitions="*, Auto, *" Margin="0,0,0,15" IsVisible="{Binding IsTemperatureVisible}">
+                            <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableTemperatureUnits}" SelectedItem="{Binding SelectedTemperatureFrom}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
+                            <TextBlock Grid.Column="1" Text=" ➔ " VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ActionFg}"/>
+                            <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableTemperatureUnits}" SelectedItem="{Binding SelectedTemperatureTo}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
                         </Grid>
 
                         <Grid Grid.Row="2">
