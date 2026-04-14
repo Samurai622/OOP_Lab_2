@@ -760,7 +760,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
         else if(result == 2077)
         {
-            Display = "Wake up, Samurai. We have a city ti burn";
+            Display = "Wake up, Samurai. We have a city to burn";
             CaretPosition = Display.Length;
         }
         else if (result == 1337)
