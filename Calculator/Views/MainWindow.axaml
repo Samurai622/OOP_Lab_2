@@ -1,818 +1,752 @@
 <Window xmlns="https://github.com/avaloniaui"
-       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-       xmlns:vm="using:Calculator.ViewModels"
-       xmlns:anim="https://github.com/whistyun/AnimatedImage.Avalonia"
-       x:Class="Calculator.Views.MainWindow"
-       x:DataType="vm:MainWindowViewModel"
-       Title="Pixel Calculator"
-       Width="420" Height="750"
-       MinWidth="380" MinHeight="600"
-       Background="{DynamicResource AppBg}">
- 
-   <Window.KeyBindings>
-       <KeyBinding Gesture="Divide" Command="{Binding OperatorCommand}" CommandParameter="÷"/>
-       <KeyBinding Gesture="Multiply" Command="{Binding OperatorCommand}" CommandParameter="×"/>
-       <KeyBinding Gesture="Subtract" Command="{Binding OperatorCommand}" CommandParameter="-"/>
-       <KeyBinding Gesture="Add" Command="{Binding OperatorCommand}" CommandParameter="+"/>
-       <KeyBinding Gesture="Enter" Command="{Binding CalculateCommand}"/>
-       <KeyBinding Gesture="Back" Command="{Binding BackspaceCommand}"/>
-      
-       <KeyBinding Gesture="Left" Command="{Binding MoveCaretCommand}" CommandParameter="-1"/>
-       <KeyBinding Gesture="Right" Command="{Binding MoveCaretCommand}" CommandParameter="1"/>
-
-
-       <KeyBinding Gesture="A" Command="{Binding DigitCommand}" CommandParameter="A"/>
-       <KeyBinding Gesture="B" Command="{Binding DigitCommand}" CommandParameter="B"/>
-       <KeyBinding Gesture="C" Command="{Binding DigitCommand}" CommandParameter="C"/>
-       <KeyBinding Gesture="D" Command="{Binding DigitCommand}" CommandParameter="D"/>
-       <KeyBinding Gesture="E" Command="{Binding DigitCommand}" CommandParameter="E"/>
-       <KeyBinding Gesture="F" Command="{Binding DigitCommand}" CommandParameter="F"/>
-
-
-       <KeyBinding Gesture="D1" Command="{Binding DigitCommand}" CommandParameter="1"/>
-       <KeyBinding Gesture="D2" Command="{Binding DigitCommand}" CommandParameter="2"/>
-       <KeyBinding Gesture="D3" Command="{Binding DigitCommand}" CommandParameter="3"/>
-       <KeyBinding Gesture="D4" Command="{Binding DigitCommand}" CommandParameter="4"/>
-       <KeyBinding Gesture="D5" Command="{Binding DigitCommand}" CommandParameter="5"/>
-       <KeyBinding Gesture="D6" Command="{Binding DigitCommand}" CommandParameter="6"/>
-       <KeyBinding Gesture="D7" Command="{Binding DigitCommand}" CommandParameter="7"/>
-       <KeyBinding Gesture="D8" Command="{Binding DigitCommand}" CommandParameter="8"/>
-       <KeyBinding Gesture="D9" Command="{Binding DigitCommand}" CommandParameter="9"/>
-       <KeyBinding Gesture="D0" Command="{Binding DigitCommand}" CommandParameter="0"/>
-       <KeyBinding Gesture="Decimal" Command="{Binding DotCommand}"/>
-       <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}"/>
-       <KeyBinding Gesture="Ctrl+Y" Command="{Binding RedoCommand}"/>
-       <KeyBinding Gesture="Ctrl+C" Command="{Binding ClearCommand}"/>
-       <KeyBinding Gesture="Shift+D9" Command="{Binding DigitCommand}" CommandParameter="(" />
-       <KeyBinding Gesture="Shift+D0" Command="{Binding DigitCommand}" CommandParameter=")" />
-       <KeyBinding Gesture="Shift+D8" Command="{Binding OperatorCommand}" CommandParameter="×"/>
-       <KeyBinding Gesture="Oem2" Command="{Binding OperatorCommand}" CommandParameter="÷"/>
-   </Window.KeyBindings>
-
-
-   <Window.Styles>
-       <Style Selector="Button">
-           <Setter Property="HorizontalAlignment" Value="Stretch"/>
-           <Setter Property="VerticalAlignment" Value="Stretch"/>
-           <Setter Property="HorizontalContentAlignment" Value="Center"/>
-           <Setter Property="VerticalContentAlignment" Value="Center"/>
-           <Setter Property="FontSize" Value="28"/>
-           <Setter Property="FontFamily" Value="Consolas, Courier New, Monospace"/>
-           <Setter Property="FontWeight" Value="Bold"/>
-           <Setter Property="Margin" Value="4"/>
-           <Setter Property="Background" Value="{DynamicResource BtnBg}"/>
-           <Setter Property="Foreground" Value="{DynamicResource BtnFg}"/>
-           <Setter Property="BorderBrush" Value="{DynamicResource BtnBorder}"/>
-           <Setter Property="BorderThickness" Value="2,2,4,4"/>
-           <Setter Property="CornerRadius" Value="2"/>
-           <Setter Property="Cursor" Value="Hand"/>
-       </Style>
-       <Style Selector="Button:pressed">
-           <Setter Property="BorderThickness" Value="2,2,2,2"/>
-           <Setter Property="Margin" Value="6,6,2,2"/>
-           <Setter Property="Background" Value="{DynamicResource BtnPressedBg}"/>
-       </Style>
-       <Style Selector="Button.mode_toggle:pressed">
-           <Setter Property="BorderThickness" Value="2"/>
-           <Setter Property="Foreground" Value="{DynamicResource ActionFg}"/>
-           <Setter Property="Margin" Value="4,4,0,0"/>
-       </Style>
-       <Style Selector="Button.mode_toggle.active">
-           <Setter Property="Foreground" Value="{DynamicResource ActionFg}"/>
-       </Style>
-       <Style Selector="Button.active">
-           <Setter Property="Background" Value="{DynamicResource BtnPressedBg}"/>
-           <Setter Property="BorderThickness" Value="2,2,2,2"/>
-           <Setter Property="Margin" Value="6,6,2,2"/>
-       </Style>
-       <Style Selector="Button.action"><Setter Property="Foreground" Value="{DynamicResource ActionFg}"/></Style>
-       <Style Selector="Button.operator"><Setter Property="Background" Value="{DynamicResource OperatorBg}"/></Style>
-       <Style Selector="Button.equals"><Setter Property="Background" Value="{DynamicResource EqualsBg}"/></Style>
-      
-       <Style Selector="Button.menu">
-           <Setter Property="FontSize" Value="16"/>
-           <Setter Property="BorderThickness" Value="2"/>
-           <Setter Property="Margin" Value="2,4"/>
-           <Setter Property="CornerRadius" Value="4"/>
-       </Style>
-       <Style Selector="Button.menu:pressed">
-           <Setter Property="BorderThickness" Value="2"/>
-           <Setter Property="Margin" Value="4,6,0,2"/>
-       </Style>
-      
-       <Style Selector="Button.math">
-           <Setter Property="FontSize" Value="16"/>
-           <Setter Property="Background" Value="{DynamicResource OperatorBg}"/>
-       </Style>
-       <Style Selector="Button.memory">
-           <Setter Property="FontSize" Value="14"/>
-           <Setter Property="Margin" Value="2"/>
-           <Setter Property="BorderThickness" Value="1,1,3,3"/>
-       </Style>
-       <Style Selector="Button.memory:pressed">
-           <Setter Property="BorderThickness" Value="1,1,1,1"/>
-           <Setter Property="Margin" Value="4,4,0,0"/>
-       </Style>
-
-
-       <Style Selector="DatePicker">
-           <Setter Property="HorizontalAlignment" Value="Stretch"/>
-           <Setter Property="FontFamily" Value="Consolas, Courier New, Monospace"/>
-           <Setter Property="Background" Value="{DynamicResource BtnBg}"/>
-           <Setter Property="Foreground" Value="{DynamicResource BtnFg}"/>
-           <Setter Property="BorderBrush" Value="{DynamicResource BtnBorder}"/>
-           <Setter Property="BorderThickness" Value="2"/>
-           <Setter Property="CornerRadius" Value="4"/>
-           <Setter Property="Padding" Value="10,6"/>
-           <Setter Property="FontSize" Value="16"/>
-       </Style>
-
-
-       <Style Selector="CalendarDayButton">
-           <Setter Property="CornerRadius" Value="20"/> <Setter Property="Margin" Value="2"/> </Style>
-      
-       <Style Selector="CalendarDayButton:selected">
-           <Setter Property="Background" Value="{DynamicResource ActionFg}"/>
-           <Setter Property="Foreground" Value="{DynamicResource AppBg}"/>
-       </Style>
-      
-       <Style Selector="CalendarDayButton:today">
-           <Setter Property="BorderBrush" Value="{DynamicResource ActionFg}"/>
-           <Setter Property="BorderThickness" Value="2"/>
-       </Style>
-
-
-       <Style Selector="MaskedTextBox.date-field">
-           <Setter Property="FontFamily" Value="Consolas, Courier New, Monospace"/>
-           <Setter Property="FontSize" Value="18"/>
-           <Setter Property="FontWeight" Value="Bold"/>
-           <Setter Property="Background" Value="{DynamicResource BtnPressedBg}"/>
-           <Setter Property="Foreground" Value="{DynamicResource BtnFg}"/>
-           <Setter Property="BorderBrush" Value="{DynamicResource BtnBorder}"/>
-           <Setter Property="BorderThickness" Value="2"/>
-           <Setter Property="CornerRadius" Value="4"/>
-           <Setter Property="Padding" Value="10,8"/>
-           <Setter Property="Height" Value="44"/>
-       </Style>
-
-
-       <Style Selector="MaskedTextBox.date-field:focus">
-           <Setter Property="BorderBrush" Value="{DynamicResource EqualsBg}"/>
-       </Style>
-
-
-       <Style Selector="Grid.display-grid">
-           <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
-           <Setter Property="RenderTransform" Value="rotate(0deg)"/>
-           <Setter Property="Transitions">
-               <Transitions>
-                   <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.5" Easing="CubicEaseInOut"/>
-               </Transitions>
-           </Setter>
-       </Style>
-
-
-       <Style Selector="Grid.display-grid.upsideDown">
-           <Setter Property="RenderTransform" Value="rotate(180deg)"/>
-       </Style>
-
-
-       <!-- Стандартний стиль дисплея -->
-       <Style Selector="Border.display-panel">
-           <Setter Property="Background" Value="{DynamicResource DisplayBg}"/>
-           <Setter Property="BorderBrush" Value="{DynamicResource DisplayBorder}"/>
-       </Style>
-       <Style Selector="Border.display-panel TextBlock.eq">
-           <Setter Property="Foreground" Value="{DynamicResource EqFg}"/>
-       </Style>
-       <Style Selector="Border.display-panel TextBlock.main">
-           <Setter Property="Foreground" Value="{DynamicResource DisplayFg}"/>
-       </Style>
-       <Style Selector="Border.display-panel Border.cursor">
-           <Setter Property="Background" Value="{DynamicResource DisplayFg}"/>
-       </Style>
-
-
-       <!-- Хакерський стиль (активується, коли IsHackerMode = true) -->
-       <Style Selector="Border.display-panel.hacker-mode">
-           <Setter Property="Background" Value="#0a0a0a"/>
-           <Setter Property="BorderBrush" Value="#00FF41"/>
-       </Style>
-       <Style Selector="Border.display-panel.hacker-mode TextBlock.eq">
-           <Setter Property="Foreground" Value="#00FF41"/>
-       </Style>
-       <Style Selector="Border.display-panel.hacker-mode TextBlock.main">
-           <Setter Property="Foreground" Value="#00FF41"/>
-       </Style>
-       <Style Selector="Border.display-panel.hacker-mode Border.cursor">
-           <Setter Property="Background" Value="#00FF41"/>
-       </Style>
-   </Window.Styles>
-
-
-   <Grid>
-      
-       <Grid RowDefinitions="Auto, *">
-          
-           <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Margin="15,15,15,10">
-               <Button Grid.Column="0" Content="≡" Command="{Binding ToggleMenuCommand}" Classes="menu" Width="45" Height="40" FontSize="24" Padding="0,0,0,4"/>
-              
-               <TextBlock Grid.Column="1" Text="{Binding ModeButtonText}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource BtnFg}" FontFamily="Consolas, Courier New, Monospace"/>
-              
-               <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-                   <Button Content="Redo" Command="{Binding RedoCommand}" HotKey="Ctrl+Y" Classes="menu" Padding="10,0" FontSize="14"/>
-                   <Button Content="☀/☾" Command="{Binding ToggleThemeCommand}" Classes="menu" Width="45" FontSize="16" ToolTip.Tip="Змінити тему"/>
-               </StackPanel>
-           </Grid>
-
-
-           <SplitView Grid.Row="1" IsPaneOpen="{Binding IsMenuOpen}" DisplayMode="Overlay" OpenPaneLength="260" PaneBackground="{DynamicResource AppBg}">
-             
-               <SplitView.Pane>
-                   <Border BorderBrush="{DynamicResource BtnBorder}" BorderThickness="0,2,2,0" Background="{DynamicResource BtnPressedBg}">
-                       <ScrollViewer Padding="15">
-                           <StackPanel Spacing="8">
-                               <TextBlock Text="КАЛЬКУЛЯТОР" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ActionFg}" Margin="5,10,5,0" FontFamily="Consolas, Courier New, Monospace"/>
-                               <Button Content="Звичайний" Command="{Binding SetModeCommand}" CommandParameter="Standard" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
-                               <Button Content="Інженерний" Command="{Binding SetModeCommand}" CommandParameter="Scientific" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
-                               <Button Content="Програміст" Command="{Binding SetModeCommand}" CommandParameter="Programmer" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
-                               <Button Content="Обчислення дат" Command="{Binding SetModeCommand}" CommandParameter="DateCalc" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
-                             
-                               <Border Height="2" Background="{DynamicResource BtnBorder}" Margin="5,10,5,10" Opacity="0.2"/>
-
-
-                               <TextBlock Text="КОНВЕРТЕР" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ActionFg}" Margin="5,0,5,0" FontFamily="Consolas, Courier New, Monospace"/>
-                               <Button Content="Валюти" Command="{Binding SetModeCommand}" CommandParameter="Currency" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
-                               <Button Content="Об'єм" Command="{Binding SetModeCommand}" CommandParameter="Volume" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
-
-
-                               <Border Height="2" Background="{DynamicResource BtnBorder}" Margin="5,10,5,10" Opacity="0.2"/>
-                              
-                               <TextBlock Text="НАЛАШТУВАННЯ" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ActionFg}" Margin="5,0,5,0" FontFamily="Consolas, Courier New, Monospace"/>
-                               <Button Content="Вибір стилю" Command="{Binding ReturnToStyleSelectionCommand}" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
-                           </StackPanel>
-                       </ScrollViewer>
-                   </Border>
-               </SplitView.Pane>
-
-
-               <SplitView.Content>
-                   <Grid RowDefinitions="Auto, Auto, *" Margin="15,0,15,15">
-                     
-                       <Border Grid.Row="0" Background="{DynamicResource BtnBorder}"
-                               CornerRadius="6" Padding="2" Margin="0,0,0,15"
-                               IsVisible="{Binding IsMainDisplayVisible}">
-                           <Border Classes="display-panel" Classes.hacker-mode="{Binding IsHackerMode}"
-                                   BorderThickness="2" CornerRadius="4" Padding="15,10">
-                               <Grid RowDefinitions="Auto, *" ClipToBounds="True" Classes="display-grid" Classes.upsideDown="{Binding IsUpsideDown}">
-                                  
-                                   <TextBlock Grid.Row="0" Classes="eq" Text="{Binding Equation}" TextAlignment="Right" FontSize="16" FontFamily="Consolas, Courier New, Monospace" MinHeight="20" Opacity="0.8"/>
-                                  
-                                   <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0" VerticalAlignment="Center">
-                                       <TextBlock Classes="main" Text="{Binding DisplayLeft}" FontWeight="Bold" FontSize="52" FontFamily="Consolas, Courier New, Monospace" VerticalAlignment="Center"/>
-                                      
-                                       <Border Classes="cursor" Width="3" Height="46" Opacity="{Binding CursorOpacity}" Margin="2,0" VerticalAlignment="Center" CornerRadius="1"/>
-                                      
-                                       <TextBlock Classes="main" Text="{Binding DisplayRight}" FontWeight="Bold" FontSize="52" FontFamily="Consolas, Courier New, Monospace" VerticalAlignment="Center"/>
-                                   </StackPanel>
-                                  
-                               </Grid>
-                           </Border>
-                       </Border>
-
-
-                       <!-- Блок валют -->
-                       <Grid Grid.Row="1" ColumnDefinitions="*, Auto, *" Margin="0,0,0,15" IsVisible="{Binding IsCurrencyVisible}">
-                           <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableCurrencies}" SelectedItem="{Binding SelectedFrom}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
-                           <TextBlock Grid.Column="1" Text=" ➔ " VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ActionFg}"/>
-                           <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableCurrencies}" SelectedItem="{Binding SelectedTo}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
-                       </Grid>
-
-
-                       <!-- Блок Об'єму -->
-                       <Grid Grid.Row="1" ColumnDefinitions="*, Auto, *" Margin="0,0,0,15" IsVisible="{Binding IsVolumeVisible}">
-                           <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableVolumeUnits}" SelectedItem="{Binding SelectedVolumeFrom}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
-                           <TextBlock Grid.Column="1" Text=" ➔ " VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ActionFg}"/>
-                           <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableVolumeUnits}" SelectedItem="{Binding SelectedVolumeTo}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
-                       </Grid>
-
-
-                       <Grid Grid.Row="2">
-                         
-                           <Grid RowDefinitions="*,*,*,*,*" ColumnDefinitions="*,*,*,*" IsVisible="{Binding IsStandardVisible}">
-                               <Button Grid.Row="0" Grid.Column="0" Content="CE" Command="{Binding UndoCommand}" Classes="action" FontSize="20"/>
-                               <Button Grid.Row="0" Grid.Column="1" Content="C" Command="{Binding ClearCommand}" Classes="action"/>
-                               <Button Grid.Row="0" Grid.Column="2" Content="⌫" Command="{Binding BackspaceCommand}" Classes="action" FontSize="20"/>
-                               <Button Grid.Row="0" Grid.Column="3" Content="÷" Command="{Binding OperatorCommand}" CommandParameter="÷" Classes="operator"/>
-
-
-                               <Button Grid.Row="1" Grid.Column="0" Content="7" Command="{Binding DigitCommand}" CommandParameter="7"/>
-                               <Button Grid.Row="1" Grid.Column="1" Content="8" Command="{Binding DigitCommand}" CommandParameter="8"/>
-                               <Button Grid.Row="1" Grid.Column="2" Content="9" Command="{Binding DigitCommand}" CommandParameter="9"/>
-                               <Button Grid.Row="1" Grid.Column="3" Content="×" Command="{Binding OperatorCommand}" CommandParameter="×" Classes="operator"/>
-
-
-                               <Button Grid.Row="2" Grid.Column="0" Content="4" Command="{Binding DigitCommand}" CommandParameter="4"/>
-                               <Button Grid.Row="2" Grid.Column="1" Content="5" Command="{Binding DigitCommand}" CommandParameter="5"/>
-                               <Button Grid.Row="2" Grid.Column="2" Content="6" Command="{Binding DigitCommand}" CommandParameter="6"/>
-                               <Button Grid.Row="2" Grid.Column="3" Content="-" Command="{Binding OperatorCommand}" CommandParameter="-" Classes="operator"/>
-
-
-                               <Button Grid.Row="3" Grid.Column="0" Content="1" Command="{Binding DigitCommand}" CommandParameter="1"/>
-                               <Button Grid.Row="3" Grid.Column="1" Content="2" Command="{Binding DigitCommand}" CommandParameter="2"/>
-                               <Button Grid.Row="3" Grid.Column="2" Content="3" Command="{Binding DigitCommand}" CommandParameter="3"/>
-                               <Button Grid.Row="3" Grid.Column="3" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+" Classes="operator"/>
-
-
-                               <Button Grid.Row="4" Grid.Column="0" Content="±" Command="{Binding ScientificCommand}" CommandParameter="negate" FontSize="20"/>
-                               <Button Grid.Row="4" Grid.Column="1" Content="0" Command="{Binding DigitCommand}" CommandParameter="0"/>
-                               <Button Grid.Row="4" Grid.Column="2" Content="." Command="{Binding DotCommand}"/>
-                               <Button Grid.Row="4" Grid.Column="3" Content="=" Command="{Binding CalculateCommand}" Classes="equals"/>
-                           </Grid>
-
-
-                           <Grid RowDefinitions="Auto, Auto, *,*,*,*,*,*" ColumnDefinitions="*,*,*,*,*,*" IsVisible="{Binding IsProgrammerVisible}">
-                               <Border Grid.Row="0" Grid.ColumnSpan="6" Background="{DynamicResource BtnPressedBg}" BorderBrush="{DynamicResource BtnBorder}" BorderThickness="2" CornerRadius="4" Padding="5" Margin="0,0,0,10">
-                                   <Grid ColumnDefinitions="60,*" RowDefinitions="Auto,Auto,Auto,Auto">
-                                       <Button Grid.Row="0" Grid.Column="0" Content="HEX" Command="{Binding SetBaseCommand}" CommandParameter="16" Classes="menu mode_toggle" Classes.active="{Binding IsHexActive}" Padding="0" Margin="2" Height="28"/>
-                                       <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding HexDisplay}" VerticalAlignment="Center" Margin="10,0,5,0" FontFamily="Consolas, Courier New, Monospace" FontWeight="{Binding IsHexActive, Converter={x:Static ObjectConverters.IsNotNull}}" Foreground="{DynamicResource BtnFg}"/>
-
-
-                                       <Button Grid.Row="1" Grid.Column="0" Content="DEC" Command="{Binding SetBaseCommand}" CommandParameter="10" Classes="menu mode_toggle" Classes.active="{Binding IsDecActive}" Padding="0" Margin="2" Height="28"/>
-                                       <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DecDisplay}" VerticalAlignment="Center" Margin="10,0,5,0" FontFamily="Consolas, Courier New, Monospace" FontWeight="{Binding IsDecActive, Converter={x:Static ObjectConverters.IsNotNull}}" Foreground="{DynamicResource BtnFg}"/>
-
-
-                                       <Button Grid.Row="2" Grid.Column="0" Content="OCT" Command="{Binding SetBaseCommand}" CommandParameter="8" Classes="menu mode_toggle" Classes.active="{Binding IsOctActive}" Padding="0" Margin="2" Height="28"/>
-                                       <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding OctDisplay}" VerticalAlignment="Center" Margin="10,0,5,0" FontFamily="Consolas, Courier New, Monospace" FontWeight="{Binding IsOctActive, Converter={x:Static ObjectConverters.IsNotNull}}" Foreground="{DynamicResource BtnFg}"/>
-
-
-                                       <Button Grid.Row="3" Grid.Column="0" Content="BIN" Command="{Binding SetBaseCommand}" CommandParameter="2" Classes="menu mode_toggle" Classes.active="{Binding IsBinActive}" Padding="0" Margin="2" Height="28"/>
-                                       <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding BinDisplay}" VerticalAlignment="Center" Margin="10,0,5,0" FontFamily="Consolas, Courier New, Monospace" FontWeight="{Binding IsBinActive, Converter={x:Static ObjectConverters.IsNotNull}}" Foreground="{DynamicResource BtnFg}" TextWrapping="Wrap"/>
-                                   </Grid>
-                               </Border>
-
-
-                               <Grid Grid.Row="1" Grid.ColumnSpan="6" ColumnDefinitions="*,*,*,*,*,*" Margin="0,0,0,10">
-                                   <Button Grid.Column="0" Content="Lsh" Command="{Binding OperatorCommand}" CommandParameter="&lt;&lt;" Classes="menu" IsVisible="{Binding !IsProgrammerSecondaryVisible}"/>
-                                   <Button Grid.Column="0" Content="RoL" Command="{Binding OperatorCommand}" CommandParameter="RoL" Classes="menu" IsVisible="{Binding IsProgrammerSecondaryVisible}"/>
-
-
-                                   <Button Grid.Column="1" Content="Rsh" Command="{Binding OperatorCommand}" CommandParameter="&gt;&gt;" Classes="menu" IsVisible="{Binding !IsProgrammerSecondaryVisible}"/>
-                                   <Button Grid.Column="1" Content="RoR" Command="{Binding OperatorCommand}" CommandParameter="RoR" Classes="menu" IsVisible="{Binding IsProgrammerSecondaryVisible}"/>
-
-
-                                   <Button Grid.Column="2" Content="Or" Command="{Binding OperatorCommand}" CommandParameter="OR" Classes="menu"/>
-                                   <Button Grid.Column="3" Content="Xor" Command="{Binding OperatorCommand}" CommandParameter="XOR" Classes="menu"/>
-                                   <Button Grid.Column="4" Content="Not" Command="{Binding ScientificCommand}" CommandParameter="not" Classes="menu"/>
-                                   <Button Grid.Column="5" Content="And" Command="{Binding OperatorCommand}" CommandParameter="AND" Classes="menu"/>
-                               </Grid>
-
-
-                               <Button Grid.Row="2" Grid.Column="0" Content="↑" Command="{Binding ToggleProgrammerSecondaryCommand}" Classes="math" Classes.active="{Binding IsProgrammerSecondaryVisible}" />
-                               <Button Grid.Row="2" Grid.Column="1" Content="Mod" Command="{Binding OperatorCommand}" CommandParameter="mod" Classes="math"/>
-                               <Button Grid.Row="2" Grid.Column="2" Content="CE" Command="{Binding UndoCommand}" Classes="action" FontSize="18"/>
-                               <Button Grid.Row="2" Grid.Column="3" Content="C" Command="{Binding ClearCommand}" Classes="action" FontSize="20"/>
-                               <Button Grid.Row="2" Grid.Column="4" Content="⌫" Command="{Binding BackspaceCommand}" Classes="action" FontSize="18"/>
-                               <Button Grid.Row="2" Grid.Column="5" Content="÷" Command="{Binding OperatorCommand}" CommandParameter="÷" Classes="operator"/>
-
-
-                               <Button Grid.Row="3" Grid.Column="0" Content="A" Command="{Binding DigitCommand}" CommandParameter="A" IsEnabled="{Binding IsHexActive}"/>
-                               <Button Grid.Row="3" Grid.Column="1" Content="B" Command="{Binding DigitCommand}" CommandParameter="B" IsEnabled="{Binding IsHexActive}"/>
-                               <Button Grid.Row="3" Grid.Column="2" Content="7" Command="{Binding DigitCommand}" CommandParameter="7" IsEnabled="{Binding IsOctEnabled}"/>
-                               <Button Grid.Row="3" Grid.Column="3" Content="8" Command="{Binding DigitCommand}" CommandParameter="8" IsEnabled="{Binding IsDecEnabled}"/>
-                               <Button Grid.Row="3" Grid.Column="4" Content="9" Command="{Binding DigitCommand}" CommandParameter="9" IsEnabled="{Binding IsDecEnabled}"/>
-                               <Button Grid.Row="3" Grid.Column="5" Content="×" Command="{Binding OperatorCommand}" CommandParameter="×" Classes="operator"/>
-
-
-                               <Button Grid.Row="4" Grid.Column="0" Content="C" Command="{Binding DigitCommand}" CommandParameter="C" IsEnabled="{Binding IsHexActive}"/>
-                               <Button Grid.Row="4" Grid.Column="1" Content="D" Command="{Binding DigitCommand}" CommandParameter="D" IsEnabled="{Binding IsHexActive}"/>
-                               <Button Grid.Row="4" Grid.Column="2" Content="4" Command="{Binding DigitCommand}" CommandParameter="4" IsEnabled="{Binding IsOctEnabled}"/>
-                               <Button Grid.Row="4" Grid.Column="3" Content="5" Command="{Binding DigitCommand}" CommandParameter="5" IsEnabled="{Binding IsOctEnabled}"/>
-                               <Button Grid.Row="4" Grid.Column="4" Content="6" Command="{Binding DigitCommand}" CommandParameter="6" IsEnabled="{Binding IsOctEnabled}"/>
-                               <Button Grid.Row="4" Grid.Column="5" Content="-" Command="{Binding OperatorCommand}" CommandParameter="-" Classes="operator"/>
-
-
-                               <Button Grid.Row="5" Grid.Column="0" Content="E" Command="{Binding DigitCommand}" CommandParameter="E" IsEnabled="{Binding IsHexActive}"/>
-                               <Button Grid.Row="5" Grid.Column="1" Content="F" Command="{Binding DigitCommand}" CommandParameter="F" IsEnabled="{Binding IsHexActive}"/>
-                               <Button Grid.Row="5" Grid.Column="2" Content="1" Command="{Binding DigitCommand}" CommandParameter="1" IsEnabled="{Binding IsBinEnabled}"/>
-                               <Button Grid.Row="5" Grid.Column="3" Content="2" Command="{Binding DigitCommand}" CommandParameter="2" IsEnabled="{Binding IsOctEnabled}"/>
-                               <Button Grid.Row="5" Grid.Column="4" Content="3" Command="{Binding DigitCommand}" CommandParameter="3" IsEnabled="{Binding IsOctEnabled}"/>
-                               <Button Grid.Row="5" Grid.Column="5" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+" Classes="operator"/>
-
-
-                               <Button Grid.Row="6" Grid.Column="0" Content="(" Command="{Binding DigitCommand}" CommandParameter="(" Classes="math"/>
-                               <Button Grid.Row="6" Grid.Column="1" Content=")" Command="{Binding DigitCommand}" CommandParameter=")" Classes="math"/>
-                               <Button Grid.Row="6" Grid.Column="2" Content="±" Command="{Binding ScientificCommand}" CommandParameter="negate" FontSize="20"/>
-                               <Button Grid.Row="6" Grid.Column="3" Content="0" Command="{Binding DigitCommand}" CommandParameter="0" IsEnabled="{Binding IsBinEnabled}"/>
-                               <Button Grid.Row="6" Grid.Column="4" Content="." Command="{Binding DotCommand}" IsEnabled="False"/>
-                               <Button Grid.Row="6" Grid.Column="5" Content="=" Command="{Binding CalculateCommand}" Classes="equals"/>
-                           </Grid>
-
-
-                           <Grid RowDefinitions="Auto,Auto, *,*,*,*,*,*,*" ColumnDefinitions="*,*,*,*,*" IsVisible="{Binding IsScientificVisible}">
-                               <Grid Grid.Row="0" Grid.ColumnSpan="5" ColumnDefinitions="Auto,Auto,Auto" Margin="0,0,0,5">
-                                   <Button Grid.Column="0" Content="{Binding AngleModeText}" Command="{Binding ToggleAngleModeCommand}" Classes="menu" Foreground="{DynamicResource ActionFg}" BorderThickness="0" Background="Transparent"/>
-                                   <Button Grid.Column="1" Content="HYP" Command="{Binding ToggleHypCommand}" Classes="menu mode_toggle" Classes.active="{Binding IsHyperbolic}" BorderThickness="0" Background="Transparent"/>
-                                   <Button Grid.Column="2" Content="F-E" Command="{Binding ToggleFECommand}" Classes="menu mode_toggle" Classes.active="{Binding IsExponentialMode}" BorderThickness="0" Background="Transparent"/>
-                               </Grid>
-
-
-                               <Grid Grid.Row="1" Grid.ColumnSpan="5" ColumnDefinitions="*,*,*,*,*,*" Margin="0,0,0,10">
-                                   <Button Grid.Column="0" Content="MC" Command="{Binding MemoryCommand}" CommandParameter="MC" IsEnabled="{Binding HasMemory}" Classes="memory" Foreground="{DynamicResource EqFg}"/>
-                                   <Button Grid.Column="1" Content="MR" Command="{Binding MemoryCommand}" CommandParameter="MR" IsEnabled="{Binding HasMemory}" Classes="memory" Foreground="{DynamicResource EqFg}"/>
-                                   <Button Grid.Column="2" Content="M+" Command="{Binding MemoryCommand}" CommandParameter="M+" Classes="memory"/>
-                                   <Button Grid.Column="3" Content="M-" Command="{Binding MemoryCommand}" CommandParameter="M-" Classes="memory"/>
-                                   <Button Grid.Column="4" Content="MS" Command="{Binding MemoryCommand}" CommandParameter="MS" Classes="memory"/>
-                                   <Button Grid.Column="5" Content="M▾" Classes="memory" IsEnabled="{Binding HasMemory}">
-                                       <Button.Flyout>
-                                           <Flyout Placement="BottomEdgeAlignedRight">
-                                               <Border Background="{DynamicResource BtnBg}" BorderBrush="{DynamicResource BtnBorder}" BorderThickness="2" CornerRadius="4" Padding="15">
-                                                   <StackPanel Spacing="10" Width="180">
-                                                       <TextBlock Text="В ПАМ'ЯТІ:" FontWeight="Bold" Foreground="{DynamicResource ActionFg}" FontFamily="Consolas, Courier New, Monospace" FontSize="14"/>
-                                                       <TextBlock Text="{Binding MemoryValue}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource BtnFg}" FontFamily="Consolas, Courier New, Monospace"/>
-                                                       <Button Content="Очистити (MC)" Command="{Binding MemoryCommand}" CommandParameter="MC" Classes="action" HorizontalAlignment="Stretch" FontSize="16" Padding="5"/>
-                                                   </StackPanel>
-                                               </Border>
-                                           </Flyout>
-                                       </Button.Flyout>
-                                   </Button>
-                               </Grid>
-
-
-                               <Button Grid.Row="2" Grid.Column="0" Content="x²" Command="{Binding ScientificCommand}" CommandParameter="sqr" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="2" Grid.Column="1" Content="x^y" Command="{Binding OperatorCommand}" CommandParameter="^" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="2" Grid.Column="2" Content="sin" Command="{Binding ScientificCommand}" CommandParameter="sin" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="2" Grid.Column="3" Content="cos" Command="{Binding ScientificCommand}" CommandParameter="cos" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="2" Grid.Column="4" Content="tan" Command="{Binding ScientificCommand}" CommandParameter="tan" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
-
-
-                               <Button Grid.Row="2" Grid.Column="0" Content="x³" Command="{Binding ScientificCommand}" CommandParameter="cube" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="2" Grid.Column="1" Content="y√x" Command="{Binding OperatorCommand}" CommandParameter="yroot" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="2" Grid.Column="2" Content="sin⁻¹" Command="{Binding ScientificCommand}" CommandParameter="asin" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="2" Grid.Column="3" Content="cos⁻¹" Command="{Binding ScientificCommand}" CommandParameter="acos" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="2" Grid.Column="4" Content="tan⁻¹" Command="{Binding ScientificCommand}" CommandParameter="atan" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
-
-
-                               <Button Grid.Row="3" Grid.Column="0" Content="√" Command="{Binding ScientificCommand}" CommandParameter="sqrt" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="3" Grid.Column="1" Content="10^x" Command="{Binding ScientificCommand}" CommandParameter="pow10" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="3" Grid.Column="2" Content="log" Command="{Binding ScientificCommand}" CommandParameter="log" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="3" Grid.Column="3" Content="Exp" Command="{Binding ScientificCommand}" CommandParameter="exp" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="3" Grid.Column="4" Content="Mod" Command="{Binding OperatorCommand}" CommandParameter="mod" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
-
-
-                               <Button Grid.Row="3" Grid.Column="0" Content="∛" Command="{Binding ScientificCommand}" CommandParameter="cbrt" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="3" Grid.Column="1" Content="2^x" Command="{Binding ScientificCommand}" CommandParameter="pow2" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="3" Grid.Column="2" Content="logy" Command="{Binding OperatorCommand}" CommandParameter="logy" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="3" Grid.Column="3" Content="e^x" Command="{Binding ScientificCommand}" CommandParameter="exp" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="3" Grid.Column="4" Content="Mod" Command="{Binding OperatorCommand}" CommandParameter="mod" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
-
-
-                               <Button Grid.Row="4" Grid.Column="0" Content="↑" Command="{Binding ToggleSecondaryMathCommand}" Classes="math" Classes.active="{Binding IsSecondaryMathVisible}"/>
-                               <Button Grid.Row="4" Grid.Column="1" Content="CE" Command="{Binding UndoCommand}" Classes="action" FontSize="18"/>
-                               <Button Grid.Row="4" Grid.Column="2" Content="C" Command="{Binding ClearCommand}" Classes="action"/>
-                               <Button Grid.Row="4" Grid.Column="3" Content="⌫" Command="{Binding BackspaceCommand}" Classes="action" FontSize="18"/>
-                               <Button Grid.Row="4" Grid.Column="4" Content="÷" Command="{Binding OperatorCommand}" CommandParameter="÷" Classes="operator"/>
-
-
-                               <Button Grid.Row="5" Grid.Column="0" Content="π" Command="{Binding DigitCommand}" CommandParameter="3.14159265" Classes="math" FontSize="20"/>
-                               <Button Grid.Row="5" Grid.Column="1" Content="7" Command="{Binding DigitCommand}" CommandParameter="7"/>
-                               <Button Grid.Row="5" Grid.Column="2" Content="8" Command="{Binding DigitCommand}" CommandParameter="8"/>
-                               <Button Grid.Row="5" Grid.Column="3" Content="9" Command="{Binding DigitCommand}" CommandParameter="9"/>
-                               <Button Grid.Row="5" Grid.Column="4" Content="×" Command="{Binding OperatorCommand}" CommandParameter="×" Classes="operator"/>
-
-
-                               <Button Grid.Row="6" Grid.Column="0" Content="n!" Command="{Binding ScientificCommand}" CommandParameter="fact" Classes="math"/>
-                               <Button Grid.Row="6" Grid.Column="1" Content="4" Command="{Binding DigitCommand}" CommandParameter="4"/>
-                               <Button Grid.Row="6" Grid.Column="2" Content="5" Command="{Binding DigitCommand}" CommandParameter="5"/>
-                               <Button Grid.Row="6" Grid.Column="3" Content="6" Command="{Binding DigitCommand}" CommandParameter="6"/>
-                               <Button Grid.Row="6" Grid.Column="4" Content="-" Command="{Binding OperatorCommand}" CommandParameter="-" Classes="operator"/>
-
-
-                               <Button Grid.Row="7" Grid.Column="0" Content="±" Command="{Binding ScientificCommand}" CommandParameter="negate" Classes="math"/>
-                               <Button Grid.Row="7" Grid.Column="1" Content="1" Command="{Binding DigitCommand}" CommandParameter="1"/>
-                               <Button Grid.Row="7" Grid.Column="2" Content="2" Command="{Binding DigitCommand}" CommandParameter="2"/>
-                               <Button Grid.Row="7" Grid.Column="3" Content="3" Command="{Binding DigitCommand}" CommandParameter="3"/>
-                               <Button Grid.Row="7" Grid.Column="4" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+" Classes="operator"/>
-
-
-                               <Button Grid.Row="8" Grid.Column="1" Content=")" Command="{Binding DigitCommand}" CommandParameter=")" Classes="math"/>
-                               <Button Grid.Row="8" Grid.Column="0" Content="(" Command="{Binding DigitCommand}" CommandParameter="(" Classes="math"/>
-                               <Button Grid.Row="8" Grid.Column="2" Content="0" Command="{Binding DigitCommand}" CommandParameter="0"/>
-                               <Button Grid.Row="8" Grid.Column="3" Content="." Command="{Binding DotCommand}"/>
-                               <Button Grid.Row="8" Grid.Column="4" Content="=" Command="{Binding CalculateCommand}" Classes="equals"/>
-                           </Grid>
-
-
-                           <Grid RowDefinitions="Auto, *" IsVisible="{Binding IsDateCalcVisible}" Margin="0,5,0,0">
-
-
-                               <ComboBox Grid.Row="0"
-                                       SelectedIndex="{Binding DateCalcModeIndex}"
-                                       HorizontalAlignment="Stretch"
-                                       Margin="0,0,0,16"
-                                       FontSize="18"
-                                       FontFamily="Consolas, Courier New, Monospace"
-                                       BorderThickness="2"
-                                       BorderBrush="{DynamicResource BtnBorder}"
-                                       Background="{DynamicResource BtnBg}">
-                                   <ComboBoxItem>Різниця між датами</ComboBoxItem>
-                                   <ComboBoxItem>Додати або відняти</ComboBoxItem>
-                               </ComboBox>
-
-
-                               <StackPanel Grid.Row="1" Spacing="10" IsVisible="{Binding IsDateDifferenceMode}">
-
-
-                                   <Border Background="{DynamicResource BtnPressedBg}"
-                                           BorderBrush="{DynamicResource BtnBorder}"
-                                           BorderThickness="2" CornerRadius="6" Padding="12,10">
-                                       <StackPanel Spacing="6">
-                                           <TextBlock Text="ПОЧАТКОВА ДАТА"
-                                                   FontSize="11" FontWeight="Bold"
-                                                   Foreground="{DynamicResource ActionFg}"
-                                                   FontFamily="Consolas, Courier New, Monospace"/>
-                                           <Grid ColumnDefinitions="*, Auto">
-                                               <MaskedTextBox Grid.Column="0"
-                                                       Classes="date-field"
-                                                       Text="{Binding FromDateText}"
-                                                       Mask="00\.00\.0000"
-                                                       Margin="0,0,6,0"/>
-                                               <Button Grid.Column="1"
-                                                       Content="📅"
-                                                       Command="{Binding OpenCalendarCommand}"
-                                                       CommandParameter="From"
-                                                       FontSize="20"
-                                                       Width="44" Height="44"
-                                                       Padding="0"
-                                                       VerticalContentAlignment="Center"
-                                                       HorizontalContentAlignment="Center"/>
-                                           </Grid>
-                                           <TextBlock Text="{Binding FromDateValidation}"
-                                                   FontSize="12"
-                                                   Foreground="{DynamicResource ActionFg}"
-                                                   FontFamily="Consolas, Courier New, Monospace"
-                                                   IsVisible="{Binding HasFromDateError}"/>
-                                       </StackPanel>
-                                   </Border>
-
-
-                                   <Border Background="{DynamicResource BtnPressedBg}"
-                                           BorderBrush="{DynamicResource BtnBorder}"
-                                           BorderThickness="2" CornerRadius="6" Padding="12,10"
-                                           IsEnabled="{Binding IsFromDateSet}"
-                                           Opacity="{Binding ToDateSectionOpacity}">
-                                       <StackPanel Spacing="6">
-                                           <StackPanel Orientation="Horizontal" Spacing="8">
-                                               <TextBlock Text="КІНЦЕВА ДАТА"
-                                                       FontSize="11" FontWeight="Bold"
-                                                       Foreground="{DynamicResource ActionFg}"
-                                                       FontFamily="Consolas, Courier New, Monospace"/>
-                                               <TextBlock Text="(спочатку оберіть початкову)"
-                                                       FontSize="11"
-                                                       Foreground="{DynamicResource BtnFg}"
-                                                       FontFamily="Consolas, Courier New, Monospace"
-                                                       Opacity="0.5"
-                                                       IsVisible="{Binding !IsFromDateSet}"/>
-                                           </StackPanel>
-                                           <Grid ColumnDefinitions="*, Auto">
-                                               <MaskedTextBox Grid.Column="0"
-                                                       Classes="date-field"
-                                                       Text="{Binding ToDateText}"
-                                                       Mask="00\.00\.0000"
-                                                       Margin="0,0,6,0"/>
-                                               <Button Grid.Column="1"
-                                                       Content="📅"
-                                                       Command="{Binding OpenCalendarCommand}"
-                                                       CommandParameter="To"
-                                                       FontSize="20"
-                                                       Width="44" Height="44"
-                                                       Padding="0"
-                                                       VerticalContentAlignment="Center"
-                                                       HorizontalContentAlignment="Center"/>
-                                           </Grid>
-                                           <TextBlock Text="{Binding ToDateValidation}"
-                                                   FontSize="12"
-                                                   Foreground="{DynamicResource ActionFg}"
-                                                   FontFamily="Consolas, Courier New, Monospace"
-                                                   IsVisible="{Binding HasToDateError}"/>
-                                       </StackPanel>
-                                   </Border>
-
-
-                                   <Border Background="{DynamicResource DisplayBg}"
-                                           BorderBrush="{DynamicResource DisplayBorder}"
-                                           BorderThickness="2" CornerRadius="6" Padding="12,14"
-                                           IsVisible="{Binding IsFromDateSet}">
-                                       <StackPanel Spacing="4">
-                                           <TextBlock Text="РІЗНИЦЯ:"
-                                                   FontSize="12" FontWeight="Bold"
-                                                   Foreground="{DynamicResource EqFg}"
-                                                   FontFamily="Consolas, Courier New, Monospace"/>
-                                           <TextBlock Text="{Binding DateDiffResult}"
-                                                   FontSize="24" FontWeight="Bold"
-                                                   Foreground="{DynamicResource DisplayFg}"
-                                                   TextWrapping="Wrap"
-                                                   FontFamily="Consolas, Courier New, Monospace"
-                                                   MinHeight="32"/>
-                                           <TextBlock Text="{Binding DateDiffTotalDays}"
-                                                   FontSize="15"
-                                                   Foreground="{DynamicResource EqFg}"
-                                                   FontFamily="Consolas, Courier New, Monospace"
-                                                   Opacity="0.85"/>
-                                       </StackPanel>
-                                   </Border>
-
-
-                               </StackPanel>
-
-
-                               <StackPanel Grid.Row="1" Spacing="10" IsVisible="{Binding !IsDateDifferenceMode}">
-
-
-                                   <Border Background="{DynamicResource BtnPressedBg}"
-                                           BorderBrush="{DynamicResource BtnBorder}"
-                                           BorderThickness="2" CornerRadius="6" Padding="12,10">
-                                       <StackPanel Spacing="6">
-                                           <TextBlock Text="ПОЧАТКОВА ДАТА"
-                                                   FontSize="11" FontWeight="Bold"
-                                                   Foreground="{DynamicResource ActionFg}"
-                                                   FontFamily="Consolas, Courier New, Monospace"/>
-                                           <Grid ColumnDefinitions="*, Auto">
-                                               <MaskedTextBox Grid.Column="0"
-                                                       Classes="date-field"
-                                                       Text="{Binding StartDateText}"
-                                                       Mask="00\.00\.0000"
-                                                       Margin="0,0,6,0"/>
-                                               <Button Grid.Column="1"
-                                                       Content="📅"
-                                                       Command="{Binding OpenCalendarCommand}"
-                                                       CommandParameter="Start"
-                                                       FontSize="20"
-                                                       Width="44" Height="44"
-                                                       Padding="0"
-                                                       VerticalContentAlignment="Center"
-                                                       HorizontalContentAlignment="Center"/>
-                                           </Grid>
-                                           <TextBlock Text="{Binding StartDateValidation}"
-                                                   FontSize="12"
-                                                   Foreground="{DynamicResource ActionFg}"
-                                                   FontFamily="Consolas, Courier New, Monospace"
-                                                   IsVisible="{Binding HasStartDateError}"/>
-                                       </StackPanel>
-                                   </Border>
-
-
-                                   <Border Background="{DynamicResource BtnPressedBg}"
-                                           BorderBrush="{DynamicResource BtnBorder}"
-                                           BorderThickness="2" CornerRadius="6" Padding="12,10"
-                                           IsEnabled="{Binding IsStartDateSet}"
-                                           Opacity="{Binding AddSubSectionOpacity}">
-                                       <StackPanel Spacing="12">
-
-
-                                           <Border Background="{DynamicResource BtnBg}"
-                                                   BorderBrush="{DynamicResource BtnBorder}"
-                                                   BorderThickness="2" CornerRadius="4" Padding="8">
-                                               <StackPanel Orientation="Horizontal" Spacing="20" HorizontalAlignment="Center">
-                                                   <RadioButton Content="+ ДОДАТИ"
-                                                               IsChecked="{Binding IsAddModeDate}"
-                                                               Foreground="{DynamicResource BtnFg}"
-                                                               FontFamily="Consolas, Courier New, Monospace"
-                                                               FontWeight="Bold"/>
-                                                   <RadioButton Content="− ВІДНЯТИ"
-                                                               IsChecked="{Binding !IsAddModeDate}"
-                                                               Foreground="{DynamicResource BtnFg}"
-                                                               FontFamily="Consolas, Courier New, Monospace"
-                                                               FontWeight="Bold"/>
-                                               </StackPanel>
-                                           </Border>
-
-
-                                           <Grid ColumnDefinitions="*,*,*">
-                                               <StackPanel Grid.Column="0" Margin="0,0,5,0">
-                                                   <TextBlock Text="Роки"
-                                                           Foreground="{DynamicResource BtnFg}"
-                                                           FontFamily="Consolas, Courier New, Monospace"
-                                                           FontSize="12"
-                                                           HorizontalAlignment="Center"
-                                                           Margin="0,0,0,5"/>
-                                                   <NumericUpDown Value="{Binding AddSubYears}"
-                                                               Minimum="0" Maximum="9999"
-                                                               FormatString="0"
-                                                               FontFamily="Consolas, Courier New, Monospace"
-                                                               BorderThickness="2"
-                                                               BorderBrush="{DynamicResource BtnBorder}"/>
-                                               </StackPanel>
-                                               <StackPanel Grid.Column="1" Margin="5,0,5,0">
-                                                   <TextBlock Text="Місяці"
-                                                           Foreground="{DynamicResource BtnFg}"
-                                                           FontFamily="Consolas, Courier New, Monospace"
-                                                           FontSize="12"
-                                                           HorizontalAlignment="Center"
-                                                           Margin="0,0,0,5"/>
-                                                   <NumericUpDown Value="{Binding AddSubMonths}"
-                                                               Minimum="0" Maximum="9999"
-                                                               FormatString="0"
-                                                               FontFamily="Consolas, Courier New, Monospace"
-                                                               BorderThickness="2"
-                                                               BorderBrush="{DynamicResource BtnBorder}"/>
-                                               </StackPanel>
-                                               <StackPanel Grid.Column="2" Margin="5,0,0,0">
-                                                   <TextBlock Text="Дні"
-                                                           Foreground="{DynamicResource BtnFg}"
-                                                           FontFamily="Consolas, Courier New, Monospace"
-                                                           FontSize="12"
-                                                           HorizontalAlignment="Center"
-                                                           Margin="0,0,0,5"/>
-                                                   <NumericUpDown Value="{Binding AddSubDays}"
-                                                               Minimum="0" Maximum="99999"
-                                                               FormatString="0"
-                                                               FontFamily="Consolas, Courier New, Monospace"
-                                                               BorderThickness="2"
-                                                               BorderBrush="{DynamicResource BtnBorder}"/>
-                                               </StackPanel>
-                                           </Grid>
-                                       </StackPanel>
-                                   </Border>
-
-
-                                   <Border Background="{DynamicResource DisplayBg}"
-                                           BorderBrush="{DynamicResource DisplayBorder}"
-                                           BorderThickness="2" CornerRadius="6" Padding="12,14"
-                                           IsVisible="{Binding IsStartDateSet}">
-                                       <StackPanel Spacing="4">
-                                           <TextBlock Text="РЕЗУЛЬТАТ:"
-                                                   FontSize="12" FontWeight="Bold"
-                                                   Foreground="{DynamicResource EqFg}"
-                                                   FontFamily="Consolas, Courier New, Monospace"/>
-                                           <TextBlock Text="{Binding AddSubResultDate}"
-                                                   FontSize="24" FontWeight="Bold"
-                                                   Foreground="{DynamicResource DisplayFg}"
-                                                   TextWrapping="Wrap"
-                                                   FontFamily="Consolas, Courier New, Monospace"
-                                                   MinHeight="32"/>
-                                       </StackPanel>
-                                   </Border>
-
-
-                               </StackPanel>
-
-
-                           </Grid>
-
-
-                       </Grid>
-                   </Grid>
-               </SplitView.Content>
-           </SplitView>
-       </Grid>
-
-
-       <Grid Background="#B3000000" IsVisible="{Binding IsCalendarOverlayVisible}" ZIndex="1000">
-           <Border Background="{DynamicResource AppBg}"
-                   BorderBrush="{DynamicResource BtnBorder}"
-                   BorderThickness="2"
-                   CornerRadius="8"
-                   Padding="20"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center">
-               <StackPanel Spacing="15">
-                   <TextBlock Text="ОБЕРІТЬ ДАТУ"
-                              FontSize="16"
-                              FontWeight="Bold"
-                              Foreground="{DynamicResource ActionFg}"
-                              FontFamily="Consolas, Courier New, Monospace"
-                              HorizontalAlignment="Center"/>
-                  
-                   <Calendar SelectedDate="{Binding CalendarOverlayDate}"
-                             DisplayDate="{Binding CalendarOverlayDisplayDate}"/>
-                  
-                   <Grid ColumnDefinitions="*, *" Margin="0,10,0,0">
-                       <Button Grid.Column="0"
-                               Content="Скасувати"
-                               Command="{Binding CancelCalendarCommand}"
-                               Margin="0,0,5,0" />
-                       <Button Grid.Column="1"
-                               Content="ОК"
-                               Command="{Binding ConfirmCalendarCommand}"
-                               Margin="5,0,0,0" />
-                   </Grid>
-               </StackPanel>
-           </Border>
-       </Grid>
-
-
-       <Grid Background="#E6000000" IsVisible="{Binding Six_sevenVisible}" ZIndex="9999">
-           <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-              
-               <Image anim:ImageBehavior.AnimatedSource="avares://Calculator/Assets/67.gif"
-                      Width="800" Height="600" Stretch="Uniform"/>
-                         
-           </StackPanel>
-       </Grid>
-      
-   </Grid>
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Calculator.ViewModels"
+        xmlns:anim="https://github.com/whistyun/AnimatedImage.Avalonia"
+        x:Class="Calculator.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Pixel Calculator"
+        Width="420" Height="750"
+        MinWidth="380" MinHeight="600"
+        Background="{DynamicResource AppBg}">
+   
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Divide" Command="{Binding OperatorCommand}" CommandParameter="÷"/>
+        <KeyBinding Gesture="Multiply" Command="{Binding OperatorCommand}" CommandParameter="×"/>
+        <KeyBinding Gesture="Subtract" Command="{Binding OperatorCommand}" CommandParameter="-"/>
+        <KeyBinding Gesture="Add" Command="{Binding OperatorCommand}" CommandParameter="+"/>
+        <KeyBinding Gesture="Enter" Command="{Binding CalculateCommand}"/>
+        <KeyBinding Gesture="Back" Command="{Binding BackspaceCommand}"/>
+        
+        <KeyBinding Gesture="Left" Command="{Binding MoveCaretCommand}" CommandParameter="-1"/>
+        <KeyBinding Gesture="Right" Command="{Binding MoveCaretCommand}" CommandParameter="1"/>
+
+        <KeyBinding Gesture="A" Command="{Binding DigitCommand}" CommandParameter="A"/>
+        <KeyBinding Gesture="B" Command="{Binding DigitCommand}" CommandParameter="B"/>
+        <KeyBinding Gesture="C" Command="{Binding DigitCommand}" CommandParameter="C"/>
+        <KeyBinding Gesture="D" Command="{Binding DigitCommand}" CommandParameter="D"/>
+        <KeyBinding Gesture="E" Command="{Binding DigitCommand}" CommandParameter="E"/>
+        <KeyBinding Gesture="F" Command="{Binding DigitCommand}" CommandParameter="F"/>
+
+        <KeyBinding Gesture="D1" Command="{Binding DigitCommand}" CommandParameter="1"/>
+        <KeyBinding Gesture="D2" Command="{Binding DigitCommand}" CommandParameter="2"/>
+        <KeyBinding Gesture="D3" Command="{Binding DigitCommand}" CommandParameter="3"/>
+        <KeyBinding Gesture="D4" Command="{Binding DigitCommand}" CommandParameter="4"/>
+        <KeyBinding Gesture="D5" Command="{Binding DigitCommand}" CommandParameter="5"/>
+        <KeyBinding Gesture="D6" Command="{Binding DigitCommand}" CommandParameter="6"/>
+        <KeyBinding Gesture="D7" Command="{Binding DigitCommand}" CommandParameter="7"/>
+        <KeyBinding Gesture="D8" Command="{Binding DigitCommand}" CommandParameter="8"/>
+        <KeyBinding Gesture="D9" Command="{Binding DigitCommand}" CommandParameter="9"/>
+        <KeyBinding Gesture="D0" Command="{Binding DigitCommand}" CommandParameter="0"/>
+        <KeyBinding Gesture="Decimal" Command="{Binding DotCommand}"/>
+        <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}"/>
+        <KeyBinding Gesture="Ctrl+Y" Command="{Binding RedoCommand}"/>
+        <KeyBinding Gesture="Ctrl+C" Command="{Binding ClearCommand}"/>
+        <KeyBinding Gesture="Shift+D9" Command="{Binding DigitCommand}" CommandParameter="(" />
+        <KeyBinding Gesture="Shift+D0" Command="{Binding DigitCommand}" CommandParameter=")" />
+        <KeyBinding Gesture="Shift+D8" Command="{Binding OperatorCommand}" CommandParameter="×"/>
+        <KeyBinding Gesture="Oem2" Command="{Binding OperatorCommand}" CommandParameter="÷"/>
+    </Window.KeyBindings>
+
+    <Window.Styles>
+        <Style Selector="Button">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="FontFamily" Value="Consolas, Courier New, Monospace"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Background" Value="{DynamicResource BtnBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BtnFg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BtnBorder}"/>
+            <Setter Property="BorderThickness" Value="2,2,4,4"/>
+            <Setter Property="CornerRadius" Value="2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button:pressed">
+            <Setter Property="BorderThickness" Value="2,2,2,2"/>
+            <Setter Property="Margin" Value="6,6,2,2"/>
+            <Setter Property="Background" Value="{DynamicResource BtnPressedBg}"/>
+        </Style>
+        <Style Selector="Button.mode_toggle:pressed">
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Foreground" Value="{DynamicResource ActionFg}"/>
+            <Setter Property="Margin" Value="4,4,0,0"/>
+        </Style>
+        <Style Selector="Button.mode_toggle.active">
+            <Setter Property="Foreground" Value="{DynamicResource ActionFg}"/>
+        </Style>
+        <Style Selector="Button.active">
+            <Setter Property="Background" Value="{DynamicResource BtnPressedBg}"/>
+            <Setter Property="BorderThickness" Value="2,2,2,2"/>
+            <Setter Property="Margin" Value="6,6,2,2"/>
+        </Style>
+        <Style Selector="Button.action"><Setter Property="Foreground" Value="{DynamicResource ActionFg}"/></Style>
+        <Style Selector="Button.operator"><Setter Property="Background" Value="{DynamicResource OperatorBg}"/></Style>
+        <Style Selector="Button.equals"><Setter Property="Background" Value="{DynamicResource EqualsBg}"/></Style>
+        
+        <Style Selector="Button.menu">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Margin" Value="2,4"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        <Style Selector="Button.menu:pressed">
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Margin" Value="4,6,0,2"/>
+        </Style>
+        
+        <Style Selector="Button.math">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Background" Value="{DynamicResource OperatorBg}"/>
+        </Style>
+        <Style Selector="Button.memory">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="BorderThickness" Value="1,1,3,3"/>
+        </Style>
+        <Style Selector="Button.memory:pressed">
+            <Setter Property="BorderThickness" Value="1,1,1,1"/>
+            <Setter Property="Margin" Value="4,4,0,0"/>
+        </Style>
+
+        <Style Selector="DatePicker">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="FontFamily" Value="Consolas, Courier New, Monospace"/>
+            <Setter Property="Background" Value="{DynamicResource BtnBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BtnFg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BtnBorder}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+
+        <Style Selector="CalendarDayButton">
+            <Setter Property="CornerRadius" Value="20"/> <Setter Property="Margin" Value="2"/> </Style>
+        
+        <Style Selector="CalendarDayButton:selected">
+            <Setter Property="Background" Value="{DynamicResource ActionFg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AppBg}"/>
+        </Style>
+        
+        <Style Selector="CalendarDayButton:today">
+            <Setter Property="BorderBrush" Value="{DynamicResource ActionFg}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+
+        <Style Selector="MaskedTextBox.date-field">
+            <Setter Property="FontFamily" Value="Consolas, Courier New, Monospace"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background" Value="{DynamicResource BtnPressedBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BtnFg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BtnBorder}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Height" Value="44"/>
+        </Style>
+
+        <Style Selector="MaskedTextBox.date-field:focus">
+            <Setter Property="BorderBrush" Value="{DynamicResource EqualsBg}"/>
+        </Style>
+
+        <Style Selector="Grid.display-grid">
+            <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+            <Setter Property="RenderTransform" Value="rotate(0deg)"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.5" Easing="CubicEaseInOut"/>
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="Grid.display-grid.upsideDown">
+            <Setter Property="RenderTransform" Value="rotate(180deg)"/>
+        </Style>
+
+        <Style Selector="Border.display-panel">
+            <Setter Property="Background" Value="{DynamicResource DisplayBg}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource DisplayBorder}"/>
+        </Style>
+        <Style Selector="Border.display-panel TextBlock.eq">
+            <Setter Property="Foreground" Value="{DynamicResource EqFg}"/>
+        </Style>
+        <Style Selector="Border.display-panel TextBlock.main">
+            <Setter Property="Foreground" Value="{DynamicResource DisplayFg}"/>
+        </Style>
+        <Style Selector="Border.display-panel Border.cursor">
+            <Setter Property="Background" Value="{DynamicResource DisplayFg}"/>
+        </Style>
+
+        <Style Selector="Border.display-panel.hacker-mode">
+            <Setter Property="Background" Value="#0a0a0a"/>
+            <Setter Property="BorderBrush" Value="#00FF41"/>
+        </Style>
+        <Style Selector="Border.display-panel.hacker-mode TextBlock.eq">
+            <Setter Property="Foreground" Value="#00FF41"/>
+        </Style>
+        <Style Selector="Border.display-panel.hacker-mode TextBlock.main">
+            <Setter Property="Foreground" Value="#00FF41"/>
+        </Style>
+        <Style Selector="Border.display-panel.hacker-mode Border.cursor">
+            <Setter Property="Background" Value="#00FF41"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid>
+        
+        <Grid RowDefinitions="Auto, *">
+            
+            <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Margin="15,15,15,10">
+                <Button Grid.Column="0" Content="≡" Command="{Binding ToggleMenuCommand}" Classes="menu" Width="45" Height="40" FontSize="24" Padding="0,0,0,4"/>
+                
+                <TextBlock Grid.Column="1" Text="{Binding ModeButtonText}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource BtnFg}" FontFamily="Consolas, Courier New, Monospace"/>
+                
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+                    <Button Content="Redo" Command="{Binding RedoCommand}" HotKey="Ctrl+Y" Classes="menu" Padding="10,0" FontSize="14"/>
+                    <Button Content="☀/☾" Command="{Binding ToggleThemeCommand}" Classes="menu" Width="45" FontSize="16" ToolTip.Tip="Змінити тему"/>
+                </StackPanel>
+            </Grid>
+
+            <SplitView Grid.Row="1" IsPaneOpen="{Binding IsMenuOpen}" DisplayMode="Overlay" OpenPaneLength="260" PaneBackground="{DynamicResource AppBg}">
+            
+                <SplitView.Pane>
+                    <Border BorderBrush="{DynamicResource BtnBorder}" BorderThickness="0,2,2,0" Background="{DynamicResource BtnPressedBg}">
+                        <ScrollViewer Padding="15">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="КАЛЬКУЛЯТОР" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ActionFg}" Margin="5,10,5,0" FontFamily="Consolas, Courier New, Monospace"/>
+                                <Button Content="Звичайний" Command="{Binding SetModeCommand}" CommandParameter="Standard" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
+                                <Button Content="Інженерний" Command="{Binding SetModeCommand}" CommandParameter="Scientific" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
+                                <Button Content="Програміст" Command="{Binding SetModeCommand}" CommandParameter="Programmer" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
+                                <Button Content="Обчислення дат" Command="{Binding SetModeCommand}" CommandParameter="DateCalc" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
+                            
+                                <Border Height="2" Background="{DynamicResource BtnBorder}" Margin="5,10,5,10" Opacity="0.2"/>
+
+                                <TextBlock Text="КОНВЕРТЕР" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ActionFg}" Margin="5,0,5,0" FontFamily="Consolas, Courier New, Monospace"/>
+                                <Button Content="Валюти" Command="{Binding SetModeCommand}" CommandParameter="Currency" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
+                                <Button Content="Об'єм" Command="{Binding SetModeCommand}" CommandParameter="Volume" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
+                                <Button Content="Довжина" Command="{Binding SetModeCommand}" CommandParameter="Length" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
+
+                                <Border Height="2" Background="{DynamicResource BtnBorder}" Margin="5,10,5,10" Opacity="0.2"/>
+                                
+                                <TextBlock Text="НАЛАШТУВАННЯ" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource ActionFg}" Margin="5,0,5,0" FontFamily="Consolas, Courier New, Monospace"/>
+                                <Button Content="Вибір стилю" Command="{Binding ReturnToStyleSelectionCommand}" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Border>
+                </SplitView.Pane>
+
+                <SplitView.Content>
+                    <Grid RowDefinitions="Auto, Auto, *" Margin="15,0,15,15">
+                    
+                        <Border Grid.Row="0" Background="{DynamicResource BtnBorder}"
+                                CornerRadius="6" Padding="2" Margin="0,0,0,15"
+                                IsVisible="{Binding IsMainDisplayVisible}"> 
+                            <Border Classes="display-panel" Classes.hacker-mode="{Binding IsHackerMode}"
+                                    BorderThickness="2" CornerRadius="4" Padding="15,10">
+                                <Grid RowDefinitions="Auto, *" ClipToBounds="True" Classes="display-grid" Classes.upsideDown="{Binding IsUpsideDown}">
+                                    
+                                    <TextBlock Grid.Row="0" Classes="eq" Text="{Binding Equation}" TextAlignment="Right" FontSize="16" FontFamily="Consolas, Courier New, Monospace" MinHeight="20" Opacity="0.8"/>
+                                    
+                                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,0,0" VerticalAlignment="Center">
+                                        <TextBlock Classes="main" Text="{Binding DisplayLeft}" FontWeight="Bold" FontSize="52" FontFamily="Consolas, Courier New, Monospace" VerticalAlignment="Center"/>
+                                        
+                                        <Border Classes="cursor" Width="3" Height="46" Opacity="{Binding CursorOpacity}" Margin="2,0" VerticalAlignment="Center" CornerRadius="1"/>
+                                        
+                                        <TextBlock Classes="main" Text="{Binding DisplayRight}" FontWeight="Bold" FontSize="52" FontFamily="Consolas, Courier New, Monospace" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    
+                                </Grid>
+                            </Border>
+                        </Border>
+
+                        <Grid Grid.Row="1" ColumnDefinitions="*, Auto, *" Margin="0,0,0,15" IsVisible="{Binding IsCurrencyVisible}">
+                            <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableCurrencies}" SelectedItem="{Binding SelectedFrom}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
+                            <TextBlock Grid.Column="1" Text=" ➔ " VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ActionFg}"/>
+                            <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableCurrencies}" SelectedItem="{Binding SelectedTo}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
+                        </Grid>
+
+                        <Grid Grid.Row="1" ColumnDefinitions="*, Auto, *" Margin="0,0,0,15" IsVisible="{Binding IsVolumeVisible}">
+                            <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableVolumeUnits}" SelectedItem="{Binding SelectedVolumeFrom}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
+                            <TextBlock Grid.Column="1" Text=" ➔ " VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ActionFg}"/>
+                            <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableVolumeUnits}" SelectedItem="{Binding SelectedVolumeTo}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
+                        </Grid>
+
+                        <Grid Grid.Row="1" ColumnDefinitions="*, Auto, *" Margin="0,0,0,15" IsVisible="{Binding IsLengthVisible}">
+                            <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableLengthUnits}" SelectedItem="{Binding SelectedLengthFrom}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
+                            <TextBlock Grid.Column="1" Text=" ➔ " VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ActionFg}"/>
+                            <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableLengthUnits}" SelectedItem="{Binding SelectedLengthTo}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
+                        </Grid>
+
+                        <Grid Grid.Row="2">
+                        
+                            <Grid RowDefinitions="*,*,*,*,*" ColumnDefinitions="*,*,*,*" IsVisible="{Binding IsStandardVisible}">
+                                <Button Grid.Row="0" Grid.Column="0" Content="CE" Command="{Binding UndoCommand}" Classes="action" FontSize="20"/>
+                                <Button Grid.Row="0" Grid.Column="1" Content="C" Command="{Binding ClearCommand}" Classes="action"/>
+                                <Button Grid.Row="0" Grid.Column="2" Content="⌫" Command="{Binding BackspaceCommand}" Classes="action" FontSize="20"/>
+                                <Button Grid.Row="0" Grid.Column="3" Content="÷" Command="{Binding OperatorCommand}" CommandParameter="÷" Classes="operator"/>
+
+                                <Button Grid.Row="1" Grid.Column="0" Content="7" Command="{Binding DigitCommand}" CommandParameter="7"/>
+                                <Button Grid.Row="1" Grid.Column="1" Content="8" Command="{Binding DigitCommand}" CommandParameter="8"/>
+                                <Button Grid.Row="1" Grid.Column="2" Content="9" Command="{Binding DigitCommand}" CommandParameter="9"/>
+                                <Button Grid.Row="1" Grid.Column="3" Content="×" Command="{Binding OperatorCommand}" CommandParameter="×" Classes="operator"/>
+
+                                <Button Grid.Row="2" Grid.Column="0" Content="4" Command="{Binding DigitCommand}" CommandParameter="4"/>
+                                <Button Grid.Row="2" Grid.Column="1" Content="5" Command="{Binding DigitCommand}" CommandParameter="5"/>
+                                <Button Grid.Row="2" Grid.Column="2" Content="6" Command="{Binding DigitCommand}" CommandParameter="6"/>
+                                <Button Grid.Row="2" Grid.Column="3" Content="-" Command="{Binding OperatorCommand}" CommandParameter="-" Classes="operator"/>
+
+                                <Button Grid.Row="3" Grid.Column="0" Content="1" Command="{Binding DigitCommand}" CommandParameter="1"/>
+                                <Button Grid.Row="3" Grid.Column="1" Content="2" Command="{Binding DigitCommand}" CommandParameter="2"/>
+                                <Button Grid.Row="3" Grid.Column="2" Content="3" Command="{Binding DigitCommand}" CommandParameter="3"/>
+                                <Button Grid.Row="3" Grid.Column="3" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+" Classes="operator"/>
+
+                                <Button Grid.Row="4" Grid.Column="0" Content="±" Command="{Binding ScientificCommand}" CommandParameter="negate" FontSize="20"/>
+                                <Button Grid.Row="4" Grid.Column="1" Content="0" Command="{Binding DigitCommand}" CommandParameter="0"/>
+                                <Button Grid.Row="4" Grid.Column="2" Content="." Command="{Binding DotCommand}"/>
+                                <Button Grid.Row="4" Grid.Column="3" Content="=" Command="{Binding CalculateCommand}" Classes="equals"/>
+                            </Grid>
+
+                            <Grid RowDefinitions="Auto, Auto, *,*,*,*,*,*" ColumnDefinitions="*,*,*,*,*,*" IsVisible="{Binding IsProgrammerVisible}">
+                                <Border Grid.Row="0" Grid.ColumnSpan="6" Background="{DynamicResource BtnPressedBg}" BorderBrush="{DynamicResource BtnBorder}" BorderThickness="2" CornerRadius="4" Padding="5" Margin="0,0,0,10">
+                                    <Grid ColumnDefinitions="60,*" RowDefinitions="Auto,Auto,Auto,Auto">
+                                        <Button Grid.Row="0" Grid.Column="0" Content="HEX" Command="{Binding SetBaseCommand}" CommandParameter="16" Classes="menu mode_toggle" Classes.active="{Binding IsHexActive}" Padding="0" Margin="2" Height="28"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding HexDisplay}" VerticalAlignment="Center" Margin="10,0,5,0" FontFamily="Consolas, Courier New, Monospace" FontWeight="{Binding IsHexActive, Converter={x:Static ObjectConverters.IsNotNull}}" Foreground="{DynamicResource BtnFg}"/>
+
+                                        <Button Grid.Row="1" Grid.Column="0" Content="DEC" Command="{Binding SetBaseCommand}" CommandParameter="10" Classes="menu mode_toggle" Classes.active="{Binding IsDecActive}" Padding="0" Margin="2" Height="28"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DecDisplay}" VerticalAlignment="Center" Margin="10,0,5,0" FontFamily="Consolas, Courier New, Monospace" FontWeight="{Binding IsDecActive, Converter={x:Static ObjectConverters.IsNotNull}}" Foreground="{DynamicResource BtnFg}"/>
+
+                                        <Button Grid.Row="2" Grid.Column="0" Content="OCT" Command="{Binding SetBaseCommand}" CommandParameter="8" Classes="menu mode_toggle" Classes.active="{Binding IsOctActive}" Padding="0" Margin="2" Height="28"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding OctDisplay}" VerticalAlignment="Center" Margin="10,0,5,0" FontFamily="Consolas, Courier New, Monospace" FontWeight="{Binding IsOctActive, Converter={x:Static ObjectConverters.IsNotNull}}" Foreground="{DynamicResource BtnFg}"/>
+
+                                        <Button Grid.Row="3" Grid.Column="0" Content="BIN" Command="{Binding SetBaseCommand}" CommandParameter="2" Classes="menu mode_toggle" Classes.active="{Binding IsBinActive}" Padding="0" Margin="2" Height="28"/>
+                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding BinDisplay}" VerticalAlignment="Center" Margin="10,0,5,0" FontFamily="Consolas, Courier New, Monospace" FontWeight="{Binding IsBinActive, Converter={x:Static ObjectConverters.IsNotNull}}" Foreground="{DynamicResource BtnFg}" TextWrapping="Wrap"/>
+                                    </Grid>
+                                </Border>
+
+                                <Grid Grid.Row="1" Grid.ColumnSpan="6" ColumnDefinitions="*,*,*,*,*,*" Margin="0,0,0,10">
+                                    <Button Grid.Column="0" Content="Lsh" Command="{Binding OperatorCommand}" CommandParameter="&lt;&lt;" Classes="menu" IsVisible="{Binding !IsProgrammerSecondaryVisible}"/>
+                                    <Button Grid.Column="0" Content="RoL" Command="{Binding OperatorCommand}" CommandParameter="RoL" Classes="menu" IsVisible="{Binding IsProgrammerSecondaryVisible}"/>
+
+                                    <Button Grid.Column="1" Content="Rsh" Command="{Binding OperatorCommand}" CommandParameter="&gt;&gt;" Classes="menu" IsVisible="{Binding !IsProgrammerSecondaryVisible}"/>
+                                    <Button Grid.Column="1" Content="RoR" Command="{Binding OperatorCommand}" CommandParameter="RoR" Classes="menu" IsVisible="{Binding IsProgrammerSecondaryVisible}"/>
+
+                                    <Button Grid.Column="2" Content="Or" Command="{Binding OperatorCommand}" CommandParameter="OR" Classes="menu"/>
+                                    <Button Grid.Column="3" Content="Xor" Command="{Binding OperatorCommand}" CommandParameter="XOR" Classes="menu"/>
+                                    <Button Grid.Column="4" Content="Not" Command="{Binding ScientificCommand}" CommandParameter="not" Classes="menu"/>
+                                    <Button Grid.Column="5" Content="And" Command="{Binding OperatorCommand}" CommandParameter="AND" Classes="menu"/>
+                                </Grid>
+
+                                <Button Grid.Row="2" Grid.Column="0" Content="↑" Command="{Binding ToggleProgrammerSecondaryCommand}" Classes="math" Classes.active="{Binding IsProgrammerSecondaryVisible}" /> 
+                                <Button Grid.Row="2" Grid.Column="1" Content="Mod" Command="{Binding OperatorCommand}" CommandParameter="mod" Classes="math"/>
+                                <Button Grid.Row="2" Grid.Column="2" Content="CE" Command="{Binding UndoCommand}" Classes="action" FontSize="18"/>
+                                <Button Grid.Row="2" Grid.Column="3" Content="C" Command="{Binding ClearCommand}" Classes="action" FontSize="20"/>
+                                <Button Grid.Row="2" Grid.Column="4" Content="⌫" Command="{Binding BackspaceCommand}" Classes="action" FontSize="18"/>
+                                <Button Grid.Row="2" Grid.Column="5" Content="÷" Command="{Binding OperatorCommand}" CommandParameter="÷" Classes="operator"/>
+
+                                <Button Grid.Row="3" Grid.Column="0" Content="A" Command="{Binding DigitCommand}" CommandParameter="A" IsEnabled="{Binding IsHexActive}"/>
+                                <Button Grid.Row="3" Grid.Column="1" Content="B" Command="{Binding DigitCommand}" CommandParameter="B" IsEnabled="{Binding IsHexActive}"/>
+                                <Button Grid.Row="3" Grid.Column="2" Content="7" Command="{Binding DigitCommand}" CommandParameter="7" IsEnabled="{Binding IsOctEnabled}"/>
+                                <Button Grid.Row="3" Grid.Column="3" Content="8" Command="{Binding DigitCommand}" CommandParameter="8" IsEnabled="{Binding IsDecEnabled}"/>
+                                <Button Grid.Row="3" Grid.Column="4" Content="9" Command="{Binding DigitCommand}" CommandParameter="9" IsEnabled="{Binding IsDecEnabled}"/>
+                                <Button Grid.Row="3" Grid.Column="5" Content="×" Command="{Binding OperatorCommand}" CommandParameter="×" Classes="operator"/>
+
+                                <Button Grid.Row="4" Grid.Column="0" Content="C" Command="{Binding DigitCommand}" CommandParameter="C" IsEnabled="{Binding IsHexActive}"/>
+                                <Button Grid.Row="4" Grid.Column="1" Content="D" Command="{Binding DigitCommand}" CommandParameter="D" IsEnabled="{Binding IsHexActive}"/>
+                                <Button Grid.Row="4" Grid.Column="2" Content="4" Command="{Binding DigitCommand}" CommandParameter="4" IsEnabled="{Binding IsOctEnabled}"/>
+                                <Button Grid.Row="4" Grid.Column="3" Content="5" Command="{Binding DigitCommand}" CommandParameter="5" IsEnabled="{Binding IsOctEnabled}"/>
+                                <Button Grid.Row="4" Grid.Column="4" Content="6" Command="{Binding DigitCommand}" CommandParameter="6" IsEnabled="{Binding IsOctEnabled}"/>
+                                <Button Grid.Row="4" Grid.Column="5" Content="-" Command="{Binding OperatorCommand}" CommandParameter="-" Classes="operator"/>
+
+                                <Button Grid.Row="5" Grid.Column="0" Content="E" Command="{Binding DigitCommand}" CommandParameter="E" IsEnabled="{Binding IsHexActive}"/>
+                                <Button Grid.Row="5" Grid.Column="1" Content="F" Command="{Binding DigitCommand}" CommandParameter="F" IsEnabled="{Binding IsHexActive}"/>
+                                <Button Grid.Row="5" Grid.Column="2" Content="1" Command="{Binding DigitCommand}" CommandParameter="1" IsEnabled="{Binding IsBinEnabled}"/>
+                                <Button Grid.Row="5" Grid.Column="3" Content="2" Command="{Binding DigitCommand}" CommandParameter="2" IsEnabled="{Binding IsOctEnabled}"/>
+                                <Button Grid.Row="5" Grid.Column="4" Content="3" Command="{Binding DigitCommand}" CommandParameter="3" IsEnabled="{Binding IsOctEnabled}"/>
+                                <Button Grid.Row="5" Grid.Column="5" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+" Classes="operator"/>
+
+                                <Button Grid.Row="6" Grid.Column="0" Content="(" Command="{Binding DigitCommand}" CommandParameter="(" Classes="math"/>
+                                <Button Grid.Row="6" Grid.Column="1" Content=")" Command="{Binding DigitCommand}" CommandParameter=")" Classes="math"/>
+                                <Button Grid.Row="6" Grid.Column="2" Content="±" Command="{Binding ScientificCommand}" CommandParameter="negate" FontSize="20"/>
+                                <Button Grid.Row="6" Grid.Column="3" Content="0" Command="{Binding DigitCommand}" CommandParameter="0" IsEnabled="{Binding IsBinEnabled}"/>
+                                <Button Grid.Row="6" Grid.Column="4" Content="." Command="{Binding DotCommand}" IsEnabled="False"/> 
+                                <Button Grid.Row="6" Grid.Column="5" Content="=" Command="{Binding CalculateCommand}" Classes="equals"/>
+                            </Grid>
+
+                            <Grid RowDefinitions="Auto,Auto, *,*,*,*,*,*,*" ColumnDefinitions="*,*,*,*,*" IsVisible="{Binding IsScientificVisible}">
+                                <Grid Grid.Row="0" Grid.ColumnSpan="5" ColumnDefinitions="Auto,Auto,Auto" Margin="0,0,0,5">
+                                    <Button Grid.Column="0" Content="{Binding AngleModeText}" Command="{Binding ToggleAngleModeCommand}" Classes="menu" Foreground="{DynamicResource ActionFg}" BorderThickness="0" Background="Transparent"/>
+                                    <Button Grid.Column="1" Content="HYP" Command="{Binding ToggleHypCommand}" Classes="menu mode_toggle" Classes.active="{Binding IsHyperbolic}" BorderThickness="0" Background="Transparent"/>
+                                    <Button Grid.Column="2" Content="F-E" Command="{Binding ToggleFECommand}" Classes="menu mode_toggle" Classes.active="{Binding IsExponentialMode}" BorderThickness="0" Background="Transparent"/>
+                                </Grid>
+
+                                <Grid Grid.Row="1" Grid.ColumnSpan="5" ColumnDefinitions="*,*,*,*,*,*" Margin="0,0,0,10">
+                                    <Button Grid.Column="0" Content="MC" Command="{Binding MemoryCommand}" CommandParameter="MC" IsEnabled="{Binding HasMemory}" Classes="memory" Foreground="{DynamicResource EqFg}"/>
+                                    <Button Grid.Column="1" Content="MR" Command="{Binding MemoryCommand}" CommandParameter="MR" IsEnabled="{Binding HasMemory}" Classes="memory" Foreground="{DynamicResource EqFg}"/>
+                                    <Button Grid.Column="2" Content="M+" Command="{Binding MemoryCommand}" CommandParameter="M+" Classes="memory"/>
+                                    <Button Grid.Column="3" Content="M-" Command="{Binding MemoryCommand}" CommandParameter="M-" Classes="memory"/>
+                                    <Button Grid.Column="4" Content="MS" Command="{Binding MemoryCommand}" CommandParameter="MS" Classes="memory"/>
+                                    <Button Grid.Column="5" Content="M▾" Classes="memory" IsEnabled="{Binding HasMemory}">
+                                        <Button.Flyout>
+                                            <Flyout Placement="BottomEdgeAlignedRight">
+                                                <Border Background="{DynamicResource BtnBg}" BorderBrush="{DynamicResource BtnBorder}" BorderThickness="2" CornerRadius="4" Padding="15">
+                                                    <StackPanel Spacing="10" Width="180">
+                                                        <TextBlock Text="В ПАМ'ЯТІ:" FontWeight="Bold" Foreground="{DynamicResource ActionFg}" FontFamily="Consolas, Courier New, Monospace" FontSize="14"/>
+                                                        <TextBlock Text="{Binding MemoryValue}" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource BtnFg}" FontFamily="Consolas, Courier New, Monospace"/>
+                                                        <Button Content="Очистити (MC)" Command="{Binding MemoryCommand}" CommandParameter="MC" Classes="action" HorizontalAlignment="Stretch" FontSize="16" Padding="5"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                </Grid>
+
+                                <Button Grid.Row="2" Grid.Column="0" Content="x²" Command="{Binding ScientificCommand}" CommandParameter="sqr" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="2" Grid.Column="1" Content="x^y" Command="{Binding OperatorCommand}" CommandParameter="^" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="2" Grid.Column="2" Content="sin" Command="{Binding ScientificCommand}" CommandParameter="sin" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="2" Grid.Column="3" Content="cos" Command="{Binding ScientificCommand}" CommandParameter="cos" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="2" Grid.Column="4" Content="tan" Command="{Binding ScientificCommand}" CommandParameter="tan" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+
+                                <Button Grid.Row="2" Grid.Column="0" Content="x³" Command="{Binding ScientificCommand}" CommandParameter="cube" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="2" Grid.Column="1" Content="y√x" Command="{Binding OperatorCommand}" CommandParameter="yroot" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="2" Grid.Column="2" Content="sin⁻¹" Command="{Binding ScientificCommand}" CommandParameter="asin" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="2" Grid.Column="3" Content="cos⁻¹" Command="{Binding ScientificCommand}" CommandParameter="acos" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="2" Grid.Column="4" Content="tan⁻¹" Command="{Binding ScientificCommand}" CommandParameter="atan" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
+
+                                <Button Grid.Row="3" Grid.Column="0" Content="√" Command="{Binding ScientificCommand}" CommandParameter="sqrt" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="3" Grid.Column="1" Content="10^x" Command="{Binding ScientificCommand}" CommandParameter="pow10" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="3" Grid.Column="2" Content="log" Command="{Binding ScientificCommand}" CommandParameter="log" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="3" Grid.Column="3" Content="Exp" Command="{Binding ScientificCommand}" CommandParameter="exp" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="3" Grid.Column="4" Content="Mod" Command="{Binding OperatorCommand}" CommandParameter="mod" Classes="math" IsVisible="{Binding !IsSecondaryMathVisible}"/>
+
+                                <Button Grid.Row="3" Grid.Column="0" Content="∛" Command="{Binding ScientificCommand}" CommandParameter="cbrt" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="3" Grid.Column="1" Content="2^x" Command="{Binding ScientificCommand}" CommandParameter="pow2" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="3" Grid.Column="2" Content="logy" Command="{Binding OperatorCommand}" CommandParameter="logy" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="3" Grid.Column="3" Content="e^x" Command="{Binding ScientificCommand}" CommandParameter="exp" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="3" Grid.Column="4" Content="Mod" Command="{Binding OperatorCommand}" CommandParameter="mod" Classes="math" IsVisible="{Binding IsSecondaryMathVisible}"/>
+
+                                <Button Grid.Row="4" Grid.Column="0" Content="↑" Command="{Binding ToggleSecondaryMathCommand}" Classes="math" Classes.active="{Binding IsSecondaryMathVisible}"/>
+                                <Button Grid.Row="4" Grid.Column="1" Content="CE" Command="{Binding UndoCommand}" Classes="action" FontSize="18"/>
+                                <Button Grid.Row="4" Grid.Column="2" Content="C" Command="{Binding ClearCommand}" Classes="action"/>
+                                <Button Grid.Row="4" Grid.Column="3" Content="⌫" Command="{Binding BackspaceCommand}" Classes="action" FontSize="18"/>
+                                <Button Grid.Row="4" Grid.Column="4" Content="÷" Command="{Binding OperatorCommand}" CommandParameter="÷" Classes="operator"/>
+
+                                <Button Grid.Row="5" Grid.Column="0" Content="π" Command="{Binding DigitCommand}" CommandParameter="3.14159265" Classes="math" FontSize="20"/>
+                                <Button Grid.Row="5" Grid.Column="1" Content="7" Command="{Binding DigitCommand}" CommandParameter="7"/>
+                                <Button Grid.Row="5" Grid.Column="2" Content="8" Command="{Binding DigitCommand}" CommandParameter="8"/>
+                                <Button Grid.Row="5" Grid.Column="3" Content="9" Command="{Binding DigitCommand}" CommandParameter="9"/>
+                                <Button Grid.Row="5" Grid.Column="4" Content="×" Command="{Binding OperatorCommand}" CommandParameter="×" Classes="operator"/>
+
+                                <Button Grid.Row="6" Grid.Column="0" Content="n!" Command="{Binding ScientificCommand}" CommandParameter="fact" Classes="math"/>
+                                <Button Grid.Row="6" Grid.Column="1" Content="4" Command="{Binding DigitCommand}" CommandParameter="4"/>
+                                <Button Grid.Row="6" Grid.Column="2" Content="5" Command="{Binding DigitCommand}" CommandParameter="5"/>
+                                <Button Grid.Row="6" Grid.Column="3" Content="6" Command="{Binding DigitCommand}" CommandParameter="6"/>
+                                <Button Grid.Row="6" Grid.Column="4" Content="-" Command="{Binding OperatorCommand}" CommandParameter="-" Classes="operator"/>
+
+                                <Button Grid.Row="7" Grid.Column="0" Content="±" Command="{Binding ScientificCommand}" CommandParameter="negate" Classes="math"/>
+                                <Button Grid.Row="7" Grid.Column="1" Content="1" Command="{Binding DigitCommand}" CommandParameter="1"/>
+                                <Button Grid.Row="7" Grid.Column="2" Content="2" Command="{Binding DigitCommand}" CommandParameter="2"/>
+                                <Button Grid.Row="7" Grid.Column="3" Content="3" Command="{Binding DigitCommand}" CommandParameter="3"/>
+                                <Button Grid.Row="7" Grid.Column="4" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+" Classes="operator"/>
+
+                                <Button Grid.Row="8" Grid.Column="1" Content=")" Command="{Binding DigitCommand}" CommandParameter=")" Classes="math"/>
+                                <Button Grid.Row="8" Grid.Column="0" Content="(" Command="{Binding DigitCommand}" CommandParameter="(" Classes="math"/>
+                                <Button Grid.Row="8" Grid.Column="2" Content="0" Command="{Binding DigitCommand}" CommandParameter="0"/>
+                                <Button Grid.Row="8" Grid.Column="3" Content="." Command="{Binding DotCommand}"/>
+                                <Button Grid.Row="8" Grid.Column="4" Content="=" Command="{Binding CalculateCommand}" Classes="equals"/>
+                            </Grid>
+
+                            <Grid RowDefinitions="Auto, *" IsVisible="{Binding IsDateCalcVisible}" Margin="0,5,0,0">
+
+                                <ComboBox Grid.Row="0"
+                                        SelectedIndex="{Binding DateCalcModeIndex}"
+                                        HorizontalAlignment="Stretch"
+                                        Margin="0,0,0,16"
+                                        FontSize="18"
+                                        FontFamily="Consolas, Courier New, Monospace"
+                                        BorderThickness="2"
+                                        BorderBrush="{DynamicResource BtnBorder}"
+                                        Background="{DynamicResource BtnBg}">
+                                    <ComboBoxItem>Різниця між датами</ComboBoxItem>
+                                    <ComboBoxItem>Додати або відняти</ComboBoxItem>
+                                </ComboBox>
+
+                                <StackPanel Grid.Row="1" Spacing="10" IsVisible="{Binding IsDateDifferenceMode}">
+
+                                    <Border Background="{DynamicResource BtnPressedBg}"
+                                            BorderBrush="{DynamicResource BtnBorder}"
+                                            BorderThickness="2" CornerRadius="6" Padding="12,10">
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="ПОЧАТКОВА ДАТА"
+                                                    FontSize="11" FontWeight="Bold"
+                                                    Foreground="{DynamicResource ActionFg}"
+                                                    FontFamily="Consolas, Courier New, Monospace"/>
+                                            <Grid ColumnDefinitions="*, Auto">
+                                                <MaskedTextBox Grid.Column="0"
+                                                        Classes="date-field"
+                                                        Text="{Binding FromDateText}"
+                                                        Mask="00\.00\.0000"
+                                                        Margin="0,0,6,0"/>
+                                                <Button Grid.Column="1"
+                                                        Content="📅"
+                                                        Command="{Binding OpenCalendarCommand}"
+                                                        CommandParameter="From"
+                                                        FontSize="20"
+                                                        Width="44" Height="44"
+                                                        Padding="0"
+                                                        VerticalContentAlignment="Center"
+                                                        HorizontalContentAlignment="Center"/>
+                                            </Grid>
+                                            <TextBlock Text="{Binding FromDateValidation}"
+                                                    FontSize="12"
+                                                    Foreground="{DynamicResource ActionFg}"
+                                                    FontFamily="Consolas, Courier New, Monospace"
+                                                    IsVisible="{Binding HasFromDateError}"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource BtnPressedBg}"
+                                            BorderBrush="{DynamicResource BtnBorder}"
+                                            BorderThickness="2" CornerRadius="6" Padding="12,10"
+                                            IsEnabled="{Binding IsFromDateSet}"
+                                            Opacity="{Binding ToDateSectionOpacity}">
+                                        <StackPanel Spacing="6">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <TextBlock Text="КІНЦЕВА ДАТА"
+                                                        FontSize="11" FontWeight="Bold"
+                                                        Foreground="{DynamicResource ActionFg}"
+                                                        FontFamily="Consolas, Courier New, Monospace"/>
+                                                <TextBlock Text="(спочатку оберіть початкову)"
+                                                        FontSize="11"
+                                                        Foreground="{DynamicResource BtnFg}"
+                                                        FontFamily="Consolas, Courier New, Monospace"
+                                                        Opacity="0.5"
+                                                        IsVisible="{Binding !IsFromDateSet}"/>
+                                            </StackPanel>
+                                            <Grid ColumnDefinitions="*, Auto">
+                                                <MaskedTextBox Grid.Column="0"
+                                                        Classes="date-field"
+                                                        Text="{Binding ToDateText}"
+                                                        Mask="00\.00\.0000"
+                                                        Margin="0,0,6,0"/>
+                                                <Button Grid.Column="1"
+                                                        Content="📅"
+                                                        Command="{Binding OpenCalendarCommand}"
+                                                        CommandParameter="To"
+                                                        FontSize="20"
+                                                        Width="44" Height="44"
+                                                        Padding="0"
+                                                        VerticalContentAlignment="Center"
+                                                        HorizontalContentAlignment="Center"/>
+                                            </Grid>
+                                            <TextBlock Text="{Binding ToDateValidation}"
+                                                    FontSize="12"
+                                                    Foreground="{DynamicResource ActionFg}"
+                                                    FontFamily="Consolas, Courier New, Monospace"
+                                                    IsVisible="{Binding HasToDateError}"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource DisplayBg}"
+                                            BorderBrush="{DynamicResource DisplayBorder}"
+                                            BorderThickness="2" CornerRadius="6" Padding="12,14"
+                                            IsVisible="{Binding IsFromDateSet}">
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="РІЗНИЦЯ:"
+                                                    FontSize="12" FontWeight="Bold"
+                                                    Foreground="{DynamicResource EqFg}"
+                                                    FontFamily="Consolas, Courier New, Monospace"/>
+                                            <TextBlock Text="{Binding DateDiffResult}"
+                                                    FontSize="24" FontWeight="Bold"
+                                                    Foreground="{DynamicResource DisplayFg}"
+                                                    TextWrapping="Wrap"
+                                                    FontFamily="Consolas, Courier New, Monospace"
+                                                    MinHeight="32"/>
+                                            <TextBlock Text="{Binding DateDiffTotalDays}"
+                                                    FontSize="15"
+                                                    Foreground="{DynamicResource EqFg}"
+                                                    FontFamily="Consolas, Courier New, Monospace"
+                                                    Opacity="0.85"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Spacing="10" IsVisible="{Binding !IsDateDifferenceMode}">
+
+                                    <Border Background="{DynamicResource BtnPressedBg}"
+                                            BorderBrush="{DynamicResource BtnBorder}"
+                                            BorderThickness="2" CornerRadius="6" Padding="12,10">
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="ПОЧАТКОВА ДАТА"
+                                                    FontSize="11" FontWeight="Bold"
+                                                    Foreground="{DynamicResource ActionFg}"
+                                                    FontFamily="Consolas, Courier New, Monospace"/>
+                                            <Grid ColumnDefinitions="*, Auto">
+                                                <MaskedTextBox Grid.Column="0"
+                                                        Classes="date-field"
+                                                        Text="{Binding StartDateText}"
+                                                        Mask="00\.00\.0000"
+                                                        Margin="0,0,6,0"/>
+                                                <Button Grid.Column="1"
+                                                        Content="📅"
+                                                        Command="{Binding OpenCalendarCommand}"
+                                                        CommandParameter="Start"
+                                                        FontSize="20"
+                                                        Width="44" Height="44"
+                                                        Padding="0"
+                                                        VerticalContentAlignment="Center"
+                                                        HorizontalContentAlignment="Center"/>
+                                            </Grid>
+                                            <TextBlock Text="{Binding StartDateValidation}"
+                                                    FontSize="12"
+                                                    Foreground="{DynamicResource ActionFg}"
+                                                    FontFamily="Consolas, Courier New, Monospace"
+                                                    IsVisible="{Binding HasStartDateError}"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource BtnPressedBg}"
+                                            BorderBrush="{DynamicResource BtnBorder}"
+                                            BorderThickness="2" CornerRadius="6" Padding="12,10"
+                                            IsEnabled="{Binding IsStartDateSet}"
+                                            Opacity="{Binding AddSubSectionOpacity}">
+                                        <StackPanel Spacing="12">
+
+                                            <Border Background="{DynamicResource BtnBg}"
+                                                    BorderBrush="{DynamicResource BtnBorder}"
+                                                    BorderThickness="2" CornerRadius="4" Padding="8">
+                                                <StackPanel Orientation="Horizontal" Spacing="20" HorizontalAlignment="Center">
+                                                    <RadioButton Content="+ ДОДАТИ"
+                                                                IsChecked="{Binding IsAddModeDate}"
+                                                                Foreground="{DynamicResource BtnFg}"
+                                                                FontFamily="Consolas, Courier New, Monospace"
+                                                                FontWeight="Bold"/>
+                                                    <RadioButton Content="− ВІДНЯТИ"
+                                                                IsChecked="{Binding !IsAddModeDate}"
+                                                                Foreground="{DynamicResource BtnFg}"
+                                                                FontFamily="Consolas, Courier New, Monospace"
+                                                                FontWeight="Bold"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Grid ColumnDefinitions="*,*,*">
+                                                <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                                                    <TextBlock Text="Роки"
+                                                            Foreground="{DynamicResource BtnFg}"
+                                                            FontFamily="Consolas, Courier New, Monospace"
+                                                            FontSize="12"
+                                                            HorizontalAlignment="Center"
+                                                            Margin="0,0,0,5"/>
+                                                    <NumericUpDown Value="{Binding AddSubYears}"
+                                                                Minimum="0" Maximum="9999"
+                                                                FormatString="0"
+                                                                FontFamily="Consolas, Courier New, Monospace"
+                                                                BorderThickness="2"
+                                                                BorderBrush="{DynamicResource BtnBorder}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Margin="5,0,5,0">
+                                                    <TextBlock Text="Місяці"
+                                                            Foreground="{DynamicResource BtnFg}"
+                                                            FontFamily="Consolas, Courier New, Monospace"
+                                                            FontSize="12"
+                                                            HorizontalAlignment="Center"
+                                                            Margin="0,0,0,5"/>
+                                                    <NumericUpDown Value="{Binding AddSubMonths}"
+                                                                Minimum="0" Maximum="9999"
+                                                                FormatString="0"
+                                                                FontFamily="Consolas, Courier New, Monospace"
+                                                                BorderThickness="2"
+                                                                BorderBrush="{DynamicResource BtnBorder}"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2" Margin="5,0,0,0">
+                                                    <TextBlock Text="Дні"
+                                                            Foreground="{DynamicResource BtnFg}"
+                                                            FontFamily="Consolas, Courier New, Monospace"
+                                                            FontSize="12"
+                                                            HorizontalAlignment="Center"
+                                                            Margin="0,0,0,5"/>
+                                                    <NumericUpDown Value="{Binding AddSubDays}"
+                                                                Minimum="0" Maximum="99999"
+                                                                FormatString="0"
+                                                                FontFamily="Consolas, Courier New, Monospace"
+                                                                BorderThickness="2"
+                                                                BorderBrush="{DynamicResource BtnBorder}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Background="{DynamicResource DisplayBg}"
+                                            BorderBrush="{DynamicResource DisplayBorder}"
+                                            BorderThickness="2" CornerRadius="6" Padding="12,14"
+                                            IsVisible="{Binding IsStartDateSet}">
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="РЕЗУЛЬТАТ:"
+                                                    FontSize="12" FontWeight="Bold"
+                                                    Foreground="{DynamicResource EqFg}"
+                                                    FontFamily="Consolas, Courier New, Monospace"/>
+                                            <TextBlock Text="{Binding AddSubResultDate}"
+                                                    FontSize="24" FontWeight="Bold"
+                                                    Foreground="{DynamicResource DisplayFg}"
+                                                    TextWrapping="Wrap"
+                                                    FontFamily="Consolas, Courier New, Monospace"
+                                                    MinHeight="32"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                </StackPanel>
+
+                            </Grid>
+
+                        </Grid>
+                    </Grid>
+                </SplitView.Content>
+            </SplitView>
+        </Grid>
+
+        <Grid Background="#B3000000" IsVisible="{Binding IsCalendarOverlayVisible}" ZIndex="1000">
+            <Border Background="{DynamicResource AppBg}"
+                    BorderBrush="{DynamicResource BtnBorder}"
+                    BorderThickness="2"
+                    CornerRadius="8"
+                    Padding="20"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="ОБЕРІТЬ ДАТУ" 
+                               FontSize="16" 
+                               FontWeight="Bold" 
+                               Foreground="{DynamicResource ActionFg}" 
+                               FontFamily="Consolas, Courier New, Monospace" 
+                               HorizontalAlignment="Center"/>
+                    
+                    <Calendar SelectedDate="{Binding CalendarOverlayDate}" 
+                              DisplayDate="{Binding CalendarOverlayDisplayDate}"/>
+                    
+                    <Grid ColumnDefinitions="*, *" Margin="0,10,0,0">
+                        <Button Grid.Column="0" 
+                                Content="Скасувати" 
+                                Command="{Binding CancelCalendarCommand}" 
+                                Margin="0,0,5,0" />
+                        <Button Grid.Column="1" 
+                                Content="ОК" 
+                                Command="{Binding ConfirmCalendarCommand}" 
+                                Margin="5,0,0,0" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Background="#E6000000" IsVisible="{Binding Six_sevenVisible}" ZIndex="9999">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Image anim:ImageBehavior.AnimatedSource="avares://Calculator/Assets/67.gif" 
+                       Width="800" Height="600" Stretch="Uniform"/>
+            </StackPanel>
+        </Grid>
+        
+    </Grid>
 </Window>
-
-
-
