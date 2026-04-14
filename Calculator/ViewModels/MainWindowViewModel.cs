@@ -25,7 +25,8 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly CurrencyService _currencyService = new();
     private readonly EasterEggService _easterEggService = new();
     private readonly VolumeConverterService _volumeService = new();
-    private readonly LengthConverterService _lengthService = new(); 
+    private readonly LengthConverterService _lengthService = new();
+    private readonly WeightConverterService _weightService = new(); // Додано сервіс маси
 
     [ObservableProperty] private string _display = "0";
     [ObservableProperty] private string _equation = "";
@@ -40,7 +41,8 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private bool _isScientificVisible = false;
     [ObservableProperty] private bool _isCurrencyVisible = false;
     [ObservableProperty] private bool _isVolumeVisible = false;
-    [ObservableProperty] private bool _isLengthVisible = false; 
+    [ObservableProperty] private bool _isLengthVisible = false;
+    [ObservableProperty] private bool _isWeightVisible = false; // Додано видимість маси
     [ObservableProperty] private bool _isProgrammerVisible = false;
     [ObservableProperty] private bool _isDateCalcVisible = false;
     
@@ -57,6 +59,11 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private ObservableCollection<string> _availableLengthUnits = new();
     [ObservableProperty] private string? _selectedLengthFrom;
     [ObservableProperty] private string? _selectedLengthTo;
+
+    // Властивості маси
+    [ObservableProperty] private ObservableCollection<string> _availableWeightUnits = new();
+    [ObservableProperty] private string? _selectedWeightFrom;
+    [ObservableProperty] private string? _selectedWeightTo;
 
     [ObservableProperty] private bool _isMenuOpen = false;
     [ObservableProperty] private bool _Six_sevenVisible = false;
@@ -383,12 +390,21 @@ public partial class MainWindowViewModel : ObservableObject
         MoveCaretCommand.NotifyCanExecuteChanged();
     }
 
+    // Тригери валют
     partial void OnSelectedFromChanged(string? value) => RealTimeCurrencyConvert();
     partial void OnSelectedToChanged(string? value) => RealTimeCurrencyConvert();
+
+    // Тригери об'єму
     partial void OnSelectedVolumeFromChanged(string? value) => RealTimeVolumeConvert();
     partial void OnSelectedVolumeToChanged(string? value) => RealTimeVolumeConvert();
+
+    // Тригери довжини
     partial void OnSelectedLengthFromChanged(string? value) => RealTimeLengthConvert();
     partial void OnSelectedLengthToChanged(string? value) => RealTimeLengthConvert();
+
+    // Тригери маси
+    partial void OnSelectedWeightFromChanged(string? value) => RealTimeWeightConvert();
+    partial void OnSelectedWeightToChanged(string? value) => RealTimeWeightConvert();
 
     private bool IsTextErrorOrEasterEgg()
     {
@@ -407,6 +423,7 @@ public partial class MainWindowViewModel : ObservableObject
         RealTimeCurrencyConvert();
         RealTimeVolumeConvert();
         RealTimeLengthConvert();
+        RealTimeWeightConvert(); // Виклик конвертера маси
         UpdateProgrammerDisplays();
         UpdateSplitDisplay();
     }
@@ -575,19 +592,16 @@ public partial class MainWindowViewModel : ObservableObject
     public void Digit(string digit)
     {
         if (IsCurrencyVisible && (string.IsNullOrEmpty(SelectedFrom) || string.IsNullOrEmpty(SelectedTo)))
-        {
-            Equation = "Спочатку оберіть валюти!"; return;
-        }
+        { Equation = "Спочатку оберіть валюти!"; return; }
 
         if (IsVolumeVisible && (string.IsNullOrEmpty(SelectedVolumeFrom) || string.IsNullOrEmpty(SelectedVolumeTo)))
-        {
-            Equation = "Оберіть одиниці!"; return;
-        }
+        { Equation = "Оберіть одиниці!"; return; }
 
         if (IsLengthVisible && (string.IsNullOrEmpty(SelectedLengthFrom) || string.IsNullOrEmpty(SelectedLengthTo)))
-        {
-            Equation = "Оберіть одиниці!"; return;
-        }
+        { Equation = "Оберіть одиниці!"; return; }
+
+        if (IsWeightVisible && (string.IsNullOrEmpty(SelectedWeightFrom) || string.IsNullOrEmpty(SelectedWeightTo)))
+        { Equation = "Оберіть одиниці!"; return; }
 
         if (IsProgrammerVisible)
         {
@@ -814,7 +828,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
     public void Calculate()
     {
-        if (IsCurrencyVisible || IsVolumeVisible || IsLengthVisible || IsHackerMode) return; 
+        if (IsCurrencyVisible || IsVolumeVisible || IsLengthVisible || IsWeightVisible || IsHackerMode) return; 
         
         ExecuteWithHistory(() =>
         {
@@ -1085,6 +1099,26 @@ public partial class MainWindowViewModel : ObservableObject
         catch { Equation = "Помилка вводу"; }
     }
 
+    private void RealTimeWeightConvert()
+    {
+        if (!IsWeightVisible) return;
+        if (string.IsNullOrEmpty(SelectedWeightFrom) || string.IsNullOrEmpty(SelectedWeightTo)) 
+        { 
+            Equation = "Оберіть одиниці"; 
+            return; 
+        }
+        
+        try
+        {
+            double amount = EvaluateTokens(Tokenize(Display));
+            double res = _weightService.Convert(amount, SelectedWeightFrom, SelectedWeightTo);
+            
+            string shortTo = SelectedWeightTo.Split(' ').Last().Trim('(', ')');
+            Equation = $"= {Math.Round(res, 6).ToString(CultureInfo.InvariantCulture)} {shortTo}";
+        }
+        catch { Equation = "Помилка вводу"; }
+    }
+
     [RelayCommand] public void ToggleMenu() => IsMenuOpen = !IsMenuOpen;
 
     [RelayCommand]
@@ -1092,7 +1126,8 @@ public partial class MainWindowViewModel : ObservableObject
     {
         IsMenuOpen = false;
         IsStandardVisible = false; IsScientificVisible = false; IsCurrencyVisible = false; 
-        IsProgrammerVisible = false; IsDateCalcVisible = false; IsVolumeVisible = false; IsLengthVisible = false;
+        IsProgrammerVisible = false; IsDateCalcVisible = false; IsVolumeVisible = false; 
+        IsLengthVisible = false; IsWeightVisible = false;
         
         IsMainDisplayVisible = mode != "DateCalc";
         
@@ -1146,6 +1181,18 @@ public partial class MainWindowViewModel : ObservableObject
                     SelectedLengthTo = AvailableLengthUnits[1];   
                 }
                 RealTimeLengthConvert(); 
+                break;
+            case "Weight":
+                IsWeightVisible = true;
+                IsStandardVisible = true; 
+                ModeButtonText = "Вага і маса";
+                if (AvailableWeightUnits.Count == 0)
+                {
+                    AvailableWeightUnits = new ObservableCollection<string>(_weightService.GetUnits());
+                    SelectedWeightFrom = AvailableWeightUnits[3]; // Кілограми
+                    SelectedWeightTo = AvailableWeightUnits[2];   // Грами
+                }
+                RealTimeWeightConvert(); 
                 break;
             case "DateCalc":
                 IsDateCalcVisible = true;

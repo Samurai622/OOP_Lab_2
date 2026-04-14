@@ -229,6 +229,7 @@
                                 <Button Content="Валюти" Command="{Binding SetModeCommand}" CommandParameter="Currency" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
                                 <Button Content="Об'єм" Command="{Binding SetModeCommand}" CommandParameter="Volume" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
                                 <Button Content="Довжина" Command="{Binding SetModeCommand}" CommandParameter="Length" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
+                                <Button Content="Вага і маса" Command="{Binding SetModeCommand}" CommandParameter="Weight" Classes="menu" HorizontalContentAlignment="Left" Padding="15,8"/>
 
                                 <Border Height="2" Background="{DynamicResource BtnBorder}" Margin="5,10,5,10" Opacity="0.2"/>
                                 
@@ -279,6 +280,12 @@
                             <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableLengthUnits}" SelectedItem="{Binding SelectedLengthFrom}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
                             <TextBlock Grid.Column="1" Text=" ➔ " VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ActionFg}"/>
                             <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableLengthUnits}" SelectedItem="{Binding SelectedLengthTo}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
+                        </Grid>
+
+                        <Grid Grid.Row="1" ColumnDefinitions="*, Auto, *" Margin="0,0,0,15" IsVisible="{Binding IsWeightVisible}">
+                            <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableWeightUnits}" SelectedItem="{Binding SelectedWeightFrom}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
+                            <TextBlock Grid.Column="1" Text=" ➔ " VerticalAlignment="Center" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource ActionFg}"/>
+                            <ComboBox Grid.Column="2" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableWeightUnits}" SelectedItem="{Binding SelectedWeightTo}" FontFamily="Consolas, Courier New, Monospace" BorderThickness="2" BorderBrush="{DynamicResource BtnBorder}"/>
                         </Grid>
 
                         <Grid Grid.Row="2">
