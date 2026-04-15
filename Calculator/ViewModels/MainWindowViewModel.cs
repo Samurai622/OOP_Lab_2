@@ -593,6 +593,18 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
     public void Digit(string digit)
     {
+        // 1. Блокуємо ввід дужок у всіх режимах, крім Інженерного та Програміста
+        if (!IsScientificVisible && !IsProgrammerVisible && (digit == "(" || digit == ")"))
+        {
+            return;
+        }
+
+        // 2. Забороняємо ставити закриту дужку першою (як новий ввід або на початку рядка)
+        if (digit == ")" && (_isNewInput || CaretPosition == 0))
+        {
+            return;
+        }
+
         if (IsCurrencyVisible && (string.IsNullOrEmpty(SelectedFrom) || string.IsNullOrEmpty(SelectedTo)))
         { Equation = "Спочатку оберіть валюти!"; return; }
 
