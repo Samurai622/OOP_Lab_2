@@ -17,20 +17,18 @@ public class TemperatureConverterService
     {
         if (fromUnit == toUnit) return amount;
 
-        // Переводимо будь-що у Цельсій
         double inCelsius = fromUnit switch
         {
             "Фаренгейт (°F)" => (amount - 32) * 5.0 / 9.0,
             "Кельвін (K)" => amount - 273.15,
-            _ => amount // Цельсій
+            _ => amount
         };
 
-        // Переводимо з Цельсія у цільову одиницю
         return toUnit switch
         {
             "Фаренгейт (°F)" => (inCelsius * 9.0 / 5.0) + 32,
             "Кельвін (K)" => inCelsius + 273.15,
-            _ => inCelsius // Цельсій
+            _ => inCelsius
         };
     }
 }

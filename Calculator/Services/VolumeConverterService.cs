@@ -7,7 +7,6 @@ namespace Calculator.Services;
 
 public class VolumeConverterService
 {
-   // Усі значення вказані відносно 1 Літра
    private readonly Dictionary<string, double> _conversionRates = new()
    {
        { "Мілілітри (ml)", 0.001 },
@@ -31,11 +30,8 @@ public class VolumeConverterService
        if (!_conversionRates.ContainsKey(fromUnit) || !_conversionRates.ContainsKey(toUnit))
            return 0;
 
-
-       // Переводимо у літри
        double inLiters = amount * _conversionRates[fromUnit];
-      
-       // З літрів у цільову одиницю
+
        return inLiters / _conversionRates[toUnit];
    }
 }

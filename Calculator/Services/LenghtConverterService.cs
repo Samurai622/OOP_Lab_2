@@ -5,7 +5,6 @@ namespace Calculator.Services;
 
 public class LengthConverterService
 {
-    // Значення відносно 1 Метра
     private readonly Dictionary<string, double> _conversionRates = new()
     {
         { "Міліметри (mm)", 0.001 },
@@ -27,10 +26,8 @@ public class LengthConverterService
         if (!_conversionRates.ContainsKey(fromUnit) || !_conversionRates.ContainsKey(toUnit))
             return 0;
 
-        // Переводимо у метри
         double inMeters = amount * _conversionRates[fromUnit];
-        
-        // З метрів у цільову одиницю
+
         return inMeters / _conversionRates[toUnit];
     }
 }

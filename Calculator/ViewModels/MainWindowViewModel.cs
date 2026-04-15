@@ -27,7 +27,7 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly VolumeConverterService _volumeService = new();
     private readonly LengthConverterService _lengthService = new();
     private readonly WeightConverterService _weightService = new();
-    private readonly TemperatureConverterService _temperatureService = new(); // Додано сервіс температури
+    private readonly TemperatureConverterService _temperatureService = new();
 
     [ObservableProperty] private string _display = "0";
     [ObservableProperty] private string _equation = "";
@@ -44,7 +44,7 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private bool _isVolumeVisible = false;
     [ObservableProperty] private bool _isLengthVisible = false;
     [ObservableProperty] private bool _isWeightVisible = false;
-    [ObservableProperty] private bool _isTemperatureVisible = false; // Додано видимість температури
+    [ObservableProperty] private bool _isTemperatureVisible = false;
     [ObservableProperty] private bool _isProgrammerVisible = false;
     [ObservableProperty] private bool _isDateCalcVisible = false;
     
@@ -66,7 +66,6 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty] private string? _selectedWeightFrom;
     [ObservableProperty] private string? _selectedWeightTo;
 
-    // Властивості температури
     [ObservableProperty] private ObservableCollection<string> _availableTemperatureUnits = new();
     [ObservableProperty] private string? _selectedTemperatureFrom;
     [ObservableProperty] private string? _selectedTemperatureTo;
@@ -425,7 +424,7 @@ public partial class MainWindowViewModel : ObservableObject
         RealTimeVolumeConvert();
         RealTimeLengthConvert();
         RealTimeWeightConvert();
-        RealTimeTemperatureConvert(); // Виклик конвертера температури
+        RealTimeTemperatureConvert();
         UpdateProgrammerDisplays();
         UpdateSplitDisplay();
     }
@@ -593,13 +592,11 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(IsNotDateCalc))]
     public void Digit(string digit)
     {
-        // 1. Блокуємо ввід дужок у всіх режимах, крім Інженерного та Програміста
         if (!IsScientificVisible && !IsProgrammerVisible && (digit == "(" || digit == ")"))
         {
             return;
         }
 
-        // 2. Забороняємо ставити закриту дужку першою (як новий ввід або на початку рядка)
         if (digit == ")" && (_isNewInput || CaretPosition == 0))
         {
             return;
@@ -1238,8 +1235,8 @@ public partial class MainWindowViewModel : ObservableObject
                 if (AvailableTemperatureUnits.Count == 0)
                 {
                     AvailableTemperatureUnits = new ObservableCollection<string>(_temperatureService.GetUnits());
-                    SelectedTemperatureFrom = AvailableTemperatureUnits[0]; // Цельсій
-                    SelectedTemperatureTo = AvailableTemperatureUnits[1];   // Фаренгейт
+                    SelectedTemperatureFrom = AvailableTemperatureUnits[0];
+                    SelectedTemperatureTo = AvailableTemperatureUnits[1]; 
                 }
                 RealTimeTemperatureConvert(); 
                 break;

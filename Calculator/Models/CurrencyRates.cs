@@ -2,12 +2,11 @@ using System.Text.Json.Serialization;
 
 namespace Calculator.Models;
 
-// Цей клас описує ОДИН елемент масиву з API Нацбанку
 public class NbuCurrencyRate
 {
     [JsonPropertyName("cc")]
-    public string CurrencyCode { get; set; } = string.Empty; // Наприклад: "USD"
+    public string CurrencyCode { get; set; } = string.Empty;
 
     [JsonPropertyName("rate")]
-    public double Rate { get; set; } // Наприклад: 41.50
+    public double Rate { get; set; }
 }

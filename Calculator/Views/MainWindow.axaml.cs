@@ -15,20 +15,16 @@ public partial class MainWindow : Window
         
         var vm = new MainWindowViewModel();
         DataContext = vm;
-
-        // Підписуємось на команду з ViewModel
         vm.OnReturnToStyleSelectionRequested += () =>
         {
             if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                // 1. Створюємо вікно вибору стилю
                 var styleViewModel = new StyleSelectionViewModel();
                 var styleWindow = new StyleSelectionWindow
                 {
                     DataContext = styleViewModel
                 };
 
-                // 2. Вказуємо йому, що робити, коли стиль оберуть знову
                 styleViewModel.OnLaunchRequested += (selectedStyleUri) =>
                 {
                     ThemeManager.ApplyTheme(selectedStyleUri);
@@ -38,11 +34,9 @@ public partial class MainWindow : Window
                     styleWindow.Close();
                 };
 
-                // 3. Показуємо вікно вибору стилю
                 styleWindow.Show();
                 desktop.MainWindow = styleWindow;
                 
-                // 4. Закриваємо поточне вікно калькулятора
                 this.Close();
             }
         };

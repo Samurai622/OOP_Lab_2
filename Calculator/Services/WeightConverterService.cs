@@ -5,7 +5,6 @@ namespace Calculator.Services;
 
 public class WeightConverterService
 {
-    // Значення відносно 1 Кілограма
     private readonly Dictionary<string, double> _conversionRates = new()
     {
         { "Карати (ct)", 0.0002 },
@@ -27,10 +26,8 @@ public class WeightConverterService
         if (!_conversionRates.ContainsKey(fromUnit) || !_conversionRates.ContainsKey(toUnit))
             return 0;
 
-        // Переводимо у кілограми
         double inKilograms = amount * _conversionRates[fromUnit];
-        
-        // З кілограмів у цільову одиницю
+
         return inKilograms / _conversionRates[toUnit];
     }
 }
